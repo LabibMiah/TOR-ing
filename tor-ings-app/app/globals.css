@@ -1,0 +1,28 @@
+
+:root {
+  --background: #f5f5f0;       
+  --text: #2c3e50;             
+  --accent: #00b8a9;           
+  --accent-hover: #009688;     
+  --highlight: #f5a623;       
+  --card-bg: #ffffff;          /* white background for sections */
+  --footer-bg: #e0f2f1;        /* footer */
+  --edge: #e5e7eb;                      /* light grey border for inputs/cards */
+  --shadow: 0 8px 30px rgb(0 0 0 / .08); /* soft card shadow */
+}
+
+/* Applies style to all the pages*/
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Keeps all content centered */
+.Main-ContainerBox {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
