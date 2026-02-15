@@ -7,7 +7,7 @@ It focuses on learning, not delivering production features.
 
 ## Spike Title
 
-Spike – _______________________________________
+Spike – Deployment
 
 ---
 
@@ -16,6 +16,8 @@ Spike – _______________________________________
 Briefly describe:
 - Why this spike is needed
 - What uncertainty or risk it addresses
+
+
 
 ---
 
