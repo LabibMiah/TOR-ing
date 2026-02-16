@@ -71,7 +71,7 @@ Based on this spike, we recommend:
 
 ## Owner
 
-- **Responsible team member:**  
+- **Responsible team member: Joseph**  
 
 ---
 
