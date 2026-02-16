@@ -18,5 +18,3 @@ this will give you a live server that runs of your current saved code so please 
 PLEASE DO NOT PUSH INTO MAIN BRANCH IN GITHUB AND REQUEST FOR MERGES INTO OTHER BRANCHES SO WE CAN SEE WHAT YOU HAVE DONE AND IF IT WORKS THEN IT WILL GO INTO MAIN BRANCH
 
 You need node installed and might have to run "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser" in the powershell window if you get the error message "cannot be loaded because running scripts is disabled on this system"
-
-test 
