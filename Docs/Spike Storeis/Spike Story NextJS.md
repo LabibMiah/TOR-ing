@@ -7,7 +7,7 @@ It focuses on learning, not delivering production features.
 
 ## Spike Title
 
-Spike – _______________________________________
+Spike – Next.js_______________________________________
 
 ---
 
@@ -16,21 +16,22 @@ Spike – _______________________________________
 Briefly describe:
 - Why this spike is needed
 - What uncertainty or risk it addresses
-
+<br>
+This spike is needed to understand how Next.js works and whether it is suitable for developing the frontend of the web application. Since Next.js is a framework built on top of React, the team needs to research its features, structure, and benefits before committing to it for the project.
+There is uncertainty about how Next.js is different from standard React. The team may not fully understand how to use Next.js correctly. If this is not clarified early, it could lead to mistakes in development, slower progress, and difficulty maintaining the frontend.
 ---
 
 ## Question to Answer
 
 What specific question should this spike answer?
-
-> Example:  
-> *Can we authenticate and retrieve data from the client’s API using OAuth?*
+<br>
+Is Next.js a suitable frontend framework for our web application, and do we have the required understanding and skills to use it effectively for this project?
 
 ---
 
 ## Time-Box
 
-- **Maximum time allowed:** ______ hours
+- **Maximum time allowed:** __3____ hours
 
 (The spike must stop when this time expires.)
 
@@ -39,7 +40,12 @@ What specific question should this spike answer?
 ## Tasks / Investigation
 
 What will you do during the spike?
-- 
+The team will:
+Research what Next.js is and how it works.
+Learn the differences between React and Next.js.
+Review how Next.js integrates with backend services and databases.
+Identify potential limitations or risks of using Next.js.
+
 - 
 - 
 
@@ -48,10 +54,11 @@ What will you do during the spike?
 ## Expected Outcome
 
 At the end of the spike, we expect:
-- [ ] A proof-of-concept (may be throw-away)
-- [ ] A clear recommendation
-- [ ] Identification of blockers or risks
-- [ ] Comparison of options
+- [ ] A basic understanding of how Next.js functions.
+- [ ] A comparison between React and Next.js.
+- [ ] Identification of risks or learning challenges.
+- [ ] A clear recommendation on whether to use Next.js.
+- [ ] Increased confidence in choosing a frontend framework.
 
 ---
 
@@ -65,6 +72,8 @@ Summarise what you learned:
 ---
 
 ## Recommendation / Next Steps
+Using Next.js as the frontend framework for the project.
+Allowing time for team members to familiarise themselves with Next.js concepts.
 
 Based on this spike, we recommend:
 - 

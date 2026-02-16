@@ -7,30 +7,26 @@ It focuses on learning, not delivering production features.
 
 ## Spike Title
 
-Spike – _______________________________________
+Spike – Time Management
 
 ---
 
 ## Background / Context
 
 Briefly describe:
-- Why this spike is needed
-- What uncertainty or risk it addresses
+
+Time management is important for our team because the project contains many features and deadlines that must be met before delivering to the client. Effective time management helps ensure that tasks are completed on schedule and that work is distributed fairly across the team. Without a clear time management strategy, there is a risk of last-minute work, missed deadlines, and uneven contribution between team members.
 
 ---
 
 ## Question to Answer
 
-What specific question should this spike answer?
+What time management strategy should we use to ensure that no last minute work is done, deadlines arent missed and members and members contribute equally to the project?
 
-> Example:  
-> *Can we authenticate and retrieve data from the client’s API using OAuth?*
-
----
 
 ## Time-Box
 
-- **Maximum time allowed:** ______ hours
+- **Maximum time allowed:** 1 hour
 
 (The spike must stop when this time expires.)
 
@@ -39,8 +35,9 @@ What specific question should this spike answer?
 ## Tasks / Investigation
 
 What will you do during the spike?
-- 
-- 
+- reaserch other methodologies like agile
+- investigate the benefits of using agile methodology 
+- research githubs task management system  
 - 
 
 ---
@@ -74,7 +71,7 @@ Based on this spike, we recommend:
 
 ## Owner
 
-- **Responsible team member:**  
+- **Responsible team member: Joseph**  
 
 ---
 
