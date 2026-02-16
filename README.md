@@ -19,3 +19,4 @@ PLEASE DO NOT PUSH INTO MAIN BRANCH IN GITHUB AND REQUEST FOR MERGES INTO OTHER 
 
 You need node installed and might have to run "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser" in the powershell window if you get the error message "cannot be loaded because running scripts is disabled on this system"
 
+test 
