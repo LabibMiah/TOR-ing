@@ -7,30 +7,27 @@ It focuses on learning, not delivering production features.
 
 ## Spike Title
 
-Spike – _______________________________________
+Spike – Feature Branch 
 
 ---
 
 ## Background / Context
 
-Briefly describe:
-- Why this spike is needed
-- What uncertainty or risk it addresses
+This spike is very important since our team will be working on the same piece of code at the same time if we all upload the code it will could cause conflicts , over writing of code or broken code. We should learn how feature braches work and how it will help with workflow
 
 ---
 
 ## Question to Answer
 
-What specific question should this spike answer?
+how to create feature branches and upload them safely to prevent accidental overwriting of other team mates code?
 
-> Example:  
-> *Can we authenticate and retrieve data from the client’s API using OAuth?*
+which github workflow should we use with feature branching?
 
 ---
 
 ## Time-Box
 
-- **Maximum time allowed:** ______ hours
+- **Maximum time allowed:** 1hours
 
 (The spike must stop when this time expires.)
 
@@ -39,9 +36,9 @@ What specific question should this spike answer?
 ## Tasks / Investigation
 
 What will you do during the spike?
-- 
-- 
-- 
+- we will research how feature braches work
+- test making a branch and uploading it to the main branch
+- reasearch github workflow
 
 ---
 
