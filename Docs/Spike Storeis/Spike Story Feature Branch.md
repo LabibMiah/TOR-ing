@@ -45,9 +45,9 @@ What will you do during the spike?
 ## Expected Outcome
 
 At the end of the spike, we expect:
-- [ ] A proof-of-concept (may be throw-away)
-- [ ] A clear recommendation
-- [ ] Identification of blockers or risks
+- [x] A proof-of-concept (may be throw-away)
+- [x] A clear recommendation
+- [x] Identification of blockers or risks
 - [ ] Comparison of options
 
 ---
@@ -55,9 +55,11 @@ At the end of the spike, we expect:
 ## Findings / Notes
 
 Summarise what you learned:
+- cloning the main codde to a branch 
+- pull request to review the branch before merging to main code
+- making feature branches reduces the risk of breaking code
 - 
-- 
-- 
+ 
 
 ---
 
@@ -65,7 +67,10 @@ Summarise what you learned:
 
 Based on this spike, we recommend:
 - 
-- 
+- code from the main branch should never be edited directly
+- alway creat a branch for each feature
+- always pull request before and review code before cominting to the main branch
+- delete branch after merging
 
 ---
 
