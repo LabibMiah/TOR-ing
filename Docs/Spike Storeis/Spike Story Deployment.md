@@ -82,7 +82,7 @@ Testing the deployment early to avoid problems later .
 ## Owner 
 Kaif
 
-- **Responsible team member:**
+
 
 ---
 
