@@ -16,6 +16,8 @@ Spike – Deployment
 Briefly describe:
 - Why this spike is needed
 - What uncertainty or risk it addresses
+This spike is needed to understand how the web application will be deployed using Visual Studio as the primary development and deployment management tool. Since the project is a web application with a database, the team needs to research how deployment can be handled from Visual Studio and what additional services or configurations are required to make the system accessible for a university submission.
+There is uncertainty around how deployment is managed through Visual Studio, how the application will be hosted, and how the database (Supabase/Firebase) will connect securely in a deployed environment. A lack of understanding could lead todeployment failures, configuration issues, or delays close to the submission deadline.
 
 
 
@@ -32,7 +34,7 @@ What specific question should this spike answer?
 
 ## Time-Box
 
-- **Maximum time allowed:** ______ hours
+- **Maximum time allowed:** ___3___ hours
 
 (The spike must stop when this time expires.)
 
@@ -41,19 +43,20 @@ What specific question should this spike answer?
 ## Tasks / Investigation
 
 What will you do during the spike?
-- 
-- 
-- 
+-The team will:
+Investigate how Visual Studio supports deployment workflows for web applications.
+Research how Next.js applications can be deployed using Visual Studio tools.
+Explore common deployment errors when deploying from Visual Studio.
+Identify risks related to database security and configuration.
 
----
 
 ## Expected Outcome
 
 At the end of the spike, we expect:
-- [ ] A proof-of-concept (may be throw-away)
-- [ ] A clear recommendation
-- [ ] Identification of blockers or risks
-- [ ] Comparison of options
+- [ ] A clear understanding of the deployment process using Visual Studio.
+- [ ] A clear deployment approach suitable for university submission.
+- [ ] Identification of deployment risks and limitations.
+- [ ] Increased team confidence in performing deployment
 
 ---
 
