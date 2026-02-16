@@ -28,8 +28,7 @@ There is uncertainty around how deployment is managed through Visual Studio, how
 
 What specific question should this spike answer?
 
-> Example:  
-> *Can we authenticate and retrieve data from the client’s API using OAuth?*
+How can the web application be deployed using Visual Studio, and what steps, tools, and configurations are required to successfully deploy a Next.js application with a database for a university project?
 
 ---
 
@@ -65,7 +64,7 @@ At the end of the spike, we expect:
 
 Summarise what you learned:
 - 
-- 
+- The investigation showed that Visual Studio can be used to help deploy web applications by working with external hosting services. The application needs to be configured correctly, especially environment variables and database connections. Some extra setup may be required depending on the hosting service used, and mistakes in configuration could cause the application not to run properly or fail to connect to the database.
 - 
 
 ---
@@ -74,13 +73,16 @@ Summarise what you learned:
 
 Based on this spike, we recommend:
 - 
-- 
+-Using Visual Studio to manage the deployment process.
+Choosing a hosting service that works well with Next.js.
+Testing the deployment early to avoid problems later .
 
 ---
 
-## Owner
+## Owner 
+Kaif
 
-- **Responsible team member:**  
+
 
 ---
 
