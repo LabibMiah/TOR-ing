@@ -16,6 +16,7 @@ Spike – Deployment
 Briefly describe:
 - Why this spike is needed
 - What uncertainty or risk it addresses
+<br>
 This spike is needed to understand how the web application will be deployed using Visual Studio as the primary development and deployment management tool. Since the project is a web application with a database, the team needs to research how deployment can be handled from Visual Studio and what additional services or configurations are required to make the system accessible for a university submission.
 There is uncertainty around how deployment is managed through Visual Studio, how the application will be hosted, and how the database (Supabase/Firebase) will connect securely in a deployed environment. A lack of understanding could lead todeployment failures, configuration issues, or delays close to the submission deadline.
 
