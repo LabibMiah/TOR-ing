@@ -1,3 +1,12 @@
+import "./globals.css";
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "My Website",
+  description: "Built with Next.js and Tailwind",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -5,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="min-h-screen bg-gray-100 text-gray-900 antialiased">
+        {children}
+      </body>
     </html>
   );
 }

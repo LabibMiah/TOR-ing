@@ -26,28 +26,28 @@ export default function LoginPage() {
   };
 
   return (
+
     <form
       onSubmit={(e) => {
         e.preventDefault();
         handleLogin();
-      }}
+      } }
     >
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-      />
-      <button type="submit">Login</button>
-      {error && <p>{error}</p>}
-    </form>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required />
+        <button type="submit">Login</button>
+        {error && <p>{error}</p>}
+      </form>
+      
   );
 }
