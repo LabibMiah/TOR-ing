@@ -19,6 +19,7 @@ Briefly describe:
 <br>
 This spike is needed to understand how different user roles will access and use the system. The project includes multiple users and not all users should have access to every feature.
 There is uncertainty about what permissions each user role should have and how access control will be implemented. If roles and permissions are not clearly defined users may gain access to features or data they should not see which could cause security issues, data misuse or confusion within the system.
+
 ## Question to Answer
 
 What specific question should this spike answer?
