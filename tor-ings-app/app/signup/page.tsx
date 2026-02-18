@@ -3,14 +3,14 @@
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 
-export default function Login() {
+export default function Signup() {
   const supabase = createClient()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
+  const handleSignup = async () => {
+    const { error } = await supabase.auth.signUp({
       email,
       password,
     })
@@ -18,7 +18,7 @@ export default function Login() {
     if (error) {
       alert(error.message)
     } else {
-      window.location.href = "/dashboard"
+      alert("Check your email to confirm")
     }
   }
 
@@ -26,7 +26,7 @@ export default function Login() {
     <div>
       <input onChange={(e) => setEmail(e.target.value)} />
       <input type="password" onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleSignup}>Sign Up</button>
     </div>
   )
 }
