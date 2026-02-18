@@ -20,14 +20,23 @@
 
 .nav {
   margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .nav a {
-  color: rgb(255, 255, 255);
-  margin: 0 15px;
+  display: inline-block;
+  color: #fff;
   text-decoration: none;
   transition: 0.2s;
+  font-size: 16px;
+  padding: 6px 10px;
 }
+
 
 .nav a:hover {
   color: #ff2ee3bb;
