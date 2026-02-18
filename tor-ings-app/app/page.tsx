@@ -14,6 +14,8 @@ export default function Home() {
           <Link href="/">Home</Link>
           <Link href="/login">Login</Link>
           <Link href="/contact">Contact</Link>
+          <Link href="/about">About</Link>
+
           
         </nav>
       </header>
