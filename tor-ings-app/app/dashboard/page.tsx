@@ -1,23 +1,21 @@
-import { cookies } from "next/headers"
-import { createClient } from "@/lib/supabase/server"
+import { createServerSupabase } from "../../lib/supabase/server";
+import { redirect } from "next/navigation";
+import LogoutButton from "./logout-button";
 
-export default async function Dashboard() {
-  const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+export default async function DashboardPage() {
+  const supabase = await createServerSupabase();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession();
 
-  if (!user) {
-    return <div>Not logged in</div>
+  if (!session) {
+    redirect("/login");
   }
 
-  const { data: account } = await supabase
-    .from("accounts")
-    .select("tier")
-    .eq("user_id", user.id)
-    .single()
-
-  return <div>Your tier: {account?.tier}</div>
+  return (
+    <div>
+      <h1>Welcome, {session.user.email}!</h1>
+      <LogoutButton />
+      {/* Add any of your guys content here */}
+    </div>
+  );
 }
