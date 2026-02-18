@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "../../lib/supabase/client";
+import Link from "next/link";
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -111,6 +112,10 @@ export default function LoginPage() {
       >
         {isLoading ? "Logging in..." : "Log In"}
       </button>
+     <Link href="/signup" style={{ marginTop: "1rem", fontSize: "0.9rem", color: "#0070f3" }}>
+        Don't have an account? Sign Up
+      </Link>
     </div>
   );
 }
+
