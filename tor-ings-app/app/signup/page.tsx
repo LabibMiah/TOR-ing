@@ -39,7 +39,7 @@ export default function Signup() {
   email,
   password,
   options: {
-    emailRedirectTo: `${window.location.origin}/login`,
+    emailRedirectTo: `${window.location.origin}/Login`,
     data: {
       forename: forename,  
     }
@@ -70,7 +70,7 @@ export default function Signup() {
     
     // Redirect to login after successful signup
     setTimeout(() => {
-      router.push("/login");
+      router.push("/Login");
     }, 2000);
   };
 
@@ -295,7 +295,7 @@ export default function Signup() {
           marginTop: "0.5rem"
         }}>
           <Link 
-            href="/login" 
+            href="/Login" 
             style={{
               fontSize: "1rem",
               color: "#E31C79",

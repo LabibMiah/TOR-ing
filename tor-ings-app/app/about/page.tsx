@@ -11,7 +11,7 @@ export default function AboutPage() {
 
         <nav className={styles.nav}>
           <Link href="/">Home</Link>
-          <Link href="/login">Login</Link>
+          <Link href="/Login">Login</Link>
           <Link href="/contact">Contact</Link>
         </nav>
       </header>
