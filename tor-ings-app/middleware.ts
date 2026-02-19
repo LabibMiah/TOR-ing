@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
   // Add this console log
-  console.log("🔒 MIDDLEWARE RUNNING for path:", request.nextUrl.pathname);
+  console.log("MIDDLEWARE RUNNING for path:", request.nextUrl.pathname);
   
   const response = NextResponse.next({
     request: {
@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   });
 
   // Log all cookies
-  console.log("🍪 Cookies:", request.cookies.getAll().map(c => c.name));
+  console.log("ookies:", request.cookies.getAll().map(c => c.name));
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,7 +42,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  console.log("✅ Session found, allowing access");
+  console.log("Session found, allowing access");
   return response;
 }
 
