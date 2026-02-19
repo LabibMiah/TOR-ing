@@ -11,7 +11,7 @@ export default async function DashboardPage() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    redirect("/login");
+    redirect("/Login");
   }
 
   // Fetch user data from accounts table

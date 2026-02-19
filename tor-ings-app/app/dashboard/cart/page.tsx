@@ -12,7 +12,7 @@ export default async function CartPage() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    redirect("/login");
+    redirect("/Login");
   }
 
   // Fetch user data for personalization
