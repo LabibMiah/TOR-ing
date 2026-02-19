@@ -1,107 +1,107 @@
-import { createServerSupabase } from "../../lib/supabase/server";
-import { redirect } from "next/navigation";
-import LogoutButton from "./logout-button"; // We'll create this
+import Link from "next/link";
+import styles from "./dashboard.module.css";
+import LogoutButton from "./logout-button";
 
-export default async function DashboardPage() {
-  const supabase = await createServerSupabase();
-
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  const { data: account } = await supabase
-    .from('accounts')
-    .select('*')
-    .eq('user_id', session.user.id)
-    .single();
+export default function DashboardPage() {
+  // Placeholder data for now (later you’ll pull from Supabase/session)
+  const email = "c4011868@hallam.shu.ac.uk";
+  const tier = "Tier 1";
+  const status = "Active";
 
   return (
-    <div style={{ 
-      maxWidth: "600px", 
-      margin: "2rem auto", 
-      padding: "1rem",
-      fontFamily: "Arial, sans-serif"
-    }}>
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "2rem",
-        padding: "1rem",
-        backgroundColor: "#f0f0f0",
-        borderRadius: "8px"
-      }}>
-        <h1 style={{ margin: 0, fontSize: "1.5rem", color: "#333" }}>
-          Dashboard
-        </h1>
-        <LogoutButton />
-      </div>
-
-      <div style={{
-        padding: "1rem",
-        backgroundColor: "#e0e0e0",
-        borderRadius: "8px",
-        marginBottom: "1rem"
-      }}>
-        <h2 style={{ marginTop: 0, fontSize: "1.2rem" }}>
-          Welcome back, {session.user.email}!
-        </h2>
-        
-        {account ? (
-          <div style={{ marginTop: "1rem" }}>
-            <p style={{ margin: "0.5rem 0" }}>
-              <strong>Email:</strong> {account.account}
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <div className={styles.brand}>
+            <h1 className={styles.brandTitle}>
+              TORS Health Equipment Ordering Catalogue
+            </h1>
+            <p className={styles.brandSubtitle}>
+              School of Healthcare - Sheffield Hallam University
             </p>
-            <p style={{ margin: "0.5rem 0" }}>
-              <strong>Tier:</strong> 
-              <span style={{
-                marginLeft: "0.5rem",
-                padding: "0.25rem 0.5rem",
-                backgroundColor: account.tier === "Tier 4" ? "purple" : 
-                                 account.tier === "Tier 1" ? "green" : "blue",
-                color: "white",
-                borderRadius: "4px",
-                fontSize: "0.9rem"
-              }}>
-                {account.tier}
+          </div>
+
+          <div className={styles.topActions}>
+            <Link className={styles.actionLink} href="/dashboard/account">
+              Account
+            </Link>
+            <LogoutButton className={styles.logoutBtn} />
+          </div>
+        </div>
+
+        <nav className={styles.nav}>
+          <Link href="/">Home</Link>
+          <Link href="/contact">Contact</Link>
+          <Link href="/about">About</Link>
+        </nav>
+      </header>
+
+      <main className={styles.main}>
+        <div className={styles.shell}>
+          <div className={styles.pageTitleRow}>
+            <h2 className={styles.pageTitle}>Dashboard</h2>
+            <span className={styles.badge}>Status: {status}</span>
+          </div>
+
+          <div className={styles.grid}>
+            <section className={styles.card}>
+              <h3 className={styles.cardTitle}>Welcome back!</h3>
+
+              <div className={styles.kv}>
+                <div>Email</div>
+                <span>{email}</span>
+
+                <div>Tier</div>
+                <span>{tier}</span>
+
+                <div>Status</div>
+                <span>{status}</span>
+              </div>
+            </section>
+
+            <section className={styles.card}>
+              <h3 className={styles.cardTitle}>Quick actions</h3>
+
+              <div className={styles.kv}>
+                <div>Account</div>
+                <span>
+                  <Link href="/dashboard/account">View</Link>
+                </span>
+
+                <div>Security</div>
+                <span>
+                  <Link href="/dashboard/account#password">Change password</Link>
+                </span>
+
+                <div>Recent orders</div>
+              <span>
+                <Link href="/dashboard/orders">View</Link>
               </span>
-            </p>
-          </div>
-        ) : (
-          <p>Loading account info...</p>
-        )}
-      </div>
 
-      {/* Simple stats section */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: "1rem"
-      }}>
-        <div style={{
-          padding: "1rem",
-          backgroundColor: "#d0d0d0",
-          borderRadius: "8px",
-          textAlign: "center"
-        }}>
-          <div style={{ fontSize: "0.9rem", color: "#666" }}>Status</div>
-          <div style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Active</div>
-        </div>
-        
-        <div style={{
-          padding: "1rem",
-          backgroundColor: "#d0d0d0",
-          borderRadius: "8px",
-          textAlign: "center"
-        }}>
-          <div style={{ fontSize: "0.9rem", color: "#666" }}>Tier</div>
-          <div style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-            {account?.tier || "N/A"}
+
+                <div>Help</div>
+                <span>
+                  <Link href="/contact">Contact</Link>
+                </span>
+              </div>
+            </section>
+          </div>
+
+          <div className={styles.smallCards}>
+            <div className={styles.smallCard}>
+              <p className={styles.smallCardTitle}>Status</p>
+              <p className={styles.smallCardValue}>{status}</p>
+            </div>
+
+            <div className={styles.smallCard}>
+              <p className={styles.smallCardTitle}>Tier</p>
+              <p className={styles.smallCardValue}>{tier}</p>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      <footer className={styles.footer}>© 2026 My Website</footer>
     </div>
   );
 }
