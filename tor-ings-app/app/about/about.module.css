@@ -1,0 +1,186 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom right, #f3f4f6, #e5e7eb);
+}
+
+.header {
+  background-color: #AC145A;
+  color: white;
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 44px;
+  font-weight: 800;
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.nav {
+  margin-top: 16px;
+}
+
+.nav a {
+  color: rgb(255, 255, 255);
+  margin: 0 15px;
+  text-decoration: none;
+  transition: 0.2s;
+  font-weight: 600;
+}
+
+.nav a:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+.main {
+  width: min(1000px, 92%);
+  margin: 0 auto;
+  padding: 48px 0;
+  flex: 1;
+}
+
+.section {
+  margin-bottom: 34px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.h2 {
+  margin: 0 0 10px;
+  font-size: 26px;
+  color: #111827;
+}
+
+.h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #111827;
+}
+
+.text {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.person {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #111827;
+  color: white;
+  font-weight: 800;
+}
+
+.personName {
+  margin: 0;
+  font-weight: 800;
+  color: #111827;
+}
+
+.personRole {
+  margin: 2px 0 0;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.serviceCard {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+
+
+
+.footer {
+  background: #111827;
+  color: white;
+  text-align: center;
+  padding: 18px 10px;
+}
+
+
+@media (max-width: 1000px) {
+  .servicesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .teamGrid {
+    grid-template-columns: 1fr;
+  }
+  .title {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 650px) {
+  .servicesGrid {
+    grid-template-columns: 1fr;
+  }
+}

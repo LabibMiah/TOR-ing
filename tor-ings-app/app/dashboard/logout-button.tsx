@@ -3,13 +3,12 @@
 import { createClient } from "../../lib/supabase/client";
 import { useRouter } from "next/navigation";
 
-export default function LogoutButton() {
+export default function LogoutButton({ className }: { className?: string }) {
   const supabase = createClient();
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-
       await supabase.auth.signOut();
 
       await fetch("/api/set-session", {
@@ -17,7 +16,6 @@ export default function LogoutButton() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session: null }),
       });
-      
 
       router.push("/login");
       router.refresh();
@@ -27,18 +25,7 @@ export default function LogoutButton() {
   };
 
   return (
-    <button
-      onClick={handleLogout}
-      style={{
-        padding: "0.5rem 1rem",
-        backgroundColor: "#ff4444",
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-        fontSize: "0.9rem"
-      }}
-    >
+    <button onClick={handleLogout} className={className}>
       Logout
     </button>
   );
