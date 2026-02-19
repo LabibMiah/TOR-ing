@@ -1,12 +1,34 @@
+import { createServerSupabase } from "../../lib/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import styles from "./dashboard.module.css";
 import LogoutButton from "./logout-button";
 
-export default function DashboardPage() {
-  // Placeholder data for now (later you’ll pull from Supabase/session)
-  const email = "c4011868@hallam.shu.ac.uk";
-  const tier = "Tier 1";
+export default async function DashboardPage() {
+  const supabase = await createServerSupabase();
+
+  // Get the current user session
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  // Fetch user data from accounts table
+  const { data: account, error } = await supabase
+    .from('accounts')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching account:", error);
+  }
+
+  // Use name if available, otherwise fallback to email or default
+  const displayName = account?.forename || session.user.email?.split('@')[0] || "User";
   const status = "Active";
+  const tier = account?.tier || "Tier 1";
 
   return (
     <div className={styles.page}>
@@ -22,6 +44,10 @@ export default function DashboardPage() {
           </div>
 
           <div className={styles.topActions}>
+            {/* Fixed cart button - now has text and matches other buttons */}
+            <Link href="/dashboard/cart" className={styles.actionLink}>
+              Cart
+            </Link>
             <Link className={styles.actionLink} href="/dashboard/account">
               Account
             </Link>
@@ -45,17 +71,10 @@ export default function DashboardPage() {
 
           <div className={styles.grid}>
             <section className={styles.card}>
-              <h3 className={styles.cardTitle}>Welcome back!</h3>
+              <h3 className={styles.cardTitle}>Welcome back, {displayName}!</h3>
 
               <div className={styles.kv}>
-                <div>Email</div>
-                <span>{email}</span>
-
-                <div>Tier</div>
-                <span>{tier}</span>
-
-                <div>Status</div>
-                <span>{status}</span>
+                {/* You can add more user info here if needed */}
               </div>
             </section>
 
@@ -74,10 +93,14 @@ export default function DashboardPage() {
                 </span>
 
                 <div>Recent orders</div>
-              <span>
-                <Link href="/dashboard/orders">View</Link>
-              </span>
+                <span>
+                  <Link href="/dashboard/orders">View</Link>
+                </span>
 
+                <div>Cart</div>
+                <span>
+                  <Link href="/dashboard/cart">View Cart</Link>
+                </span>
 
                 <div>Help</div>
                 <span>

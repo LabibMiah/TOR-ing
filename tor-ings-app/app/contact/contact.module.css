@@ -1,7 +1,6 @@
 /* Color Variables */
 :root {
   --hallam-maroon: #672146;
-  --collegiate-crimson: #AC145A;
   --hallam-pink: #E31C79;
   --text-white: #ffffff;
   --text-light: #f0f0f0;
@@ -65,121 +64,120 @@
   border: 2px solid transparent;
 }
 
-.loginBtn {
+.nav a:hover {
   background-color: var(--hallam-pink);
-  border-color: var(--hallam-pink) !important;
-  margin-left: auto;
+  border-color: var(--hallam-pink);
+  transition: all 0.3s ease;
 }
 
-/* HERO SECTION */
-.hero {
-  background-color: var(--hallam-maroon);
-  color: var(--text-white);
-  padding: 100px 20px;
-  text-align: center;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.heroContent {
-  max-width: 800px;
-}
-
-.heroContent h2 {
-  font-size: 2.8rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  line-height: 1.3;
-}
-
-.heroContent p {
-  font-size: 1.2rem;
-  margin-bottom: 40px;
-  color: rgba(255, 255, 255, 0.95);
-  line-height: 1.6;
-}
-
-
-/* FEATURES SECTION */
-.features {
+/* CONTACT SECTION */
+.contactSection {
   max-width: 1200px;
   margin: 80px auto;
   padding: 0 20px;
   width: 100%;
+  flex: 1;
 }
 
-.features h2 {
+.contactSection h2 {
   text-align: center;
   font-size: 2.2rem;
   color: var(--hallam-maroon);
-  margin-bottom: 60px;
+  margin-bottom: 20px;
   font-weight: 700;
 }
 
-.featureGrid {
+.sectionDescription {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 60px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.contactGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
   margin-bottom: 60px;
 }
 
-.featureCard {
+.contactCard {
   background-color: var(--hallam-maroon);
   color: var(--text-white);
   padding: 40px 30px;
   border-radius: 8px;
-  position: relative;
+  text-align: center;
+  transition: transform 0.3s ease;
 }
 
-.featureNumber {
+.contactCard:hover {
+  transform: translateY(-5px);
+}
+
+.iconWrapper {
   font-size: 3rem;
-  font-weight: 700;
+  margin-bottom: 20px;
   color: var(--hallam-pink);
-  margin-bottom: 15px;
-  opacity: 0.8;
 }
 
-.featureCard h3 {
+.contactCard h3 {
   font-size: 1.5rem;
   margin-bottom: 15px;
   font-weight: 600;
   color: var(--hallam-pink);
 }
 
-.featureCard p {
-  font-size: 0.95rem;
+.contactDetail {
+  font-size: 1rem;
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin: 10px 0;
   color: rgba(255, 255, 255, 0.95);
 }
 
-.featureList {
-  list-style: none;
+.contactDetail a {
+  color: var(--text-white);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hallam-pink);
+  padding-bottom: 2px;
 }
 
-.featureList li {
-  font-size: 0.9rem;
-  padding: 8px 0;
-  padding-left: 20px;
-  position: relative;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.5;
-}
-
-.featureList li:before {
-  content: "✓";
-  position: absolute;
-  left: 0;
+.contactDetail a:hover {
   color: var(--hallam-pink);
-  font-weight: bold;
 }
 
+/* LOCATION CARD */
+.locationCard {
+  background-color: var(--hallam-maroon);
+  color: var(--text-white);
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 40px;
+}
 
+.locationCard h3 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: var(--hallam-pink);
+}
 
+.locationDetail {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin: 10px 0;
+  color: rgba(255, 255, 255, 0.95);
+}
 
+.buildingName {
+  font-weight: 700;
+  color: var(--hallam-pink);
+  margin-top: 20px;
+}
 
+/* FOOTER */
 .footer {
   background-color: var(--dark-bg);
   color: var(--text-white);
@@ -213,4 +211,8 @@
   color: var(--text-white);
   text-decoration: none;
   font-size: 0.95rem;
+}
+
+.footerNav a:hover {
+  color: var(--hallam-pink);
 }
