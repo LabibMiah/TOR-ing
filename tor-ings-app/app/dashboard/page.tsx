@@ -1,6 +1,7 @@
 import { createServerSupabase } from "../../lib/supabase/server";
 import { redirect } from "next/navigation";
 import LogoutButton from "./logout-button"; 
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabase();
@@ -19,23 +20,36 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ 
-      maxWidth: "600px", 
+      maxWidth: "1000px", 
       margin: "2rem auto", 
-      padding: "1rem",
+      padding: "2rem",
       fontFamily: "Arial, sans-serif"
     }}>
       <div style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: "2rem",
+        marginBottom: "1rem",
         padding: "1rem",
-        backgroundColor: "#f0f0f0",
+        backgroundColor: "#672146",
         borderRadius: "8px"
       }}>
-        <h1 style={{ margin: 0, fontSize: "1.5rem", color: "#333" }}>
+        <h1 style={{ margin: 0,
+          fontSize: "1.5rem", 
+          color: "#ffffff" }}>
           Dashboard
         </h1>
+
+        <h2><button type="button" style={{ 
+          backgroundColor: "#E31C79", 
+          color: "white", 
+          border: "none", 
+          padding: "0.5rem 1rem", 
+          borderRadius: "4px", 
+          alignItems: "right",}}>
+            <Link href="/dashboard/cart">Cart</Link>
+            </button>
+            </h2>
         <LogoutButton />
       </div>
 
@@ -45,7 +59,8 @@ export default async function DashboardPage() {
         borderRadius: "8px",
         marginBottom: "1rem"
       }}>
-        <h2 style={{ marginTop: 0, fontSize: "1.2rem" }}>
+        <h2 style={{ marginTop: 0, 
+          fontSize: "1.2rem" }}>
           Welcome back, {session.user.email}!
         </h2>
         
