@@ -1,0 +1,51 @@
+.nav{
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    background-color:#672146;
+    gap: 20px;
+    
+}
+
+
+.nav a {
+ 
+ text-decoration:none ;
+
+}
+
+.links{
+    margin: auto;
+    display: flex;
+    gap: 30px;
+    
+}
+
+.links a {
+    color: white;
+    text-decoration: none;
+     font-size: 30px;
+
+}
+
+.links a:hover{
+    text-decoration: underline;
+}
+.logo {
+  white-space: nowrap;
+}
+
+.searchWrap {
+  flex: 1;
+  display: flex;
+}
+
+.search {
+  width: 100%;
+  
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  
+
+}

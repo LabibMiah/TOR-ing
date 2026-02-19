@@ -13,7 +13,7 @@ const supabase = createClient<Database>(
 
 
 
-export default async function asnEquipment() {
+export default async function Equipment() {
   const { data, error } = await supabase.from('Equipment').select('*');
   return (
     <main className={styles.main}>
