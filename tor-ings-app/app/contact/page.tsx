@@ -13,6 +13,7 @@ export default function Contact() {
 
           <Link href="/">Home</Link>
           <Link href="/login">Login</Link>
+          <Link href="about">About</Link>
         </nav>
       </header>
 

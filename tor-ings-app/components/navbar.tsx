@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import style from "./navbar.module.css";
+import style from "./Navbar.module.css";
 import { usePathname } from "next/navigation";
 
 
@@ -36,13 +36,14 @@ export default function Navbar(){
 
             
                 <Link href="/">Home</Link>
+                <Link href="/equipment">equipment</Link>
                 <Link href="/contact">Contact us</Link>
                 <Link href="/about">about</Link>
                 <Link href="/login">Login</Link>
             </div>
         </nav>
 
-
+        
     );
 
 }
