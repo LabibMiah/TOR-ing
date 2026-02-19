@@ -10,6 +10,7 @@ export default function Signup() {
   const [password, setPassword] = useState("")
   const [verifyPassword, setVerifyPassword] = useState("")
 
+
   const handleSignup = async () => {
     if (password !== verifyPassword) {
       alert("Passwords do not match")

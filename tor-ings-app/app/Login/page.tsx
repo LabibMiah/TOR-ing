@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "../../lib/supabase/client";
 import Link from "next/link";
 
+
 export default function LoginPage() {
   const supabase = createClient();
   const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ export default function LoginPage() {
         email, 
         password 
       });
+      
 
       if (error) {
         console.error("4. Login error details:", {
@@ -78,16 +80,33 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+  
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "300px", margin: "2rem auto" }}>
-      <div style={{ fontSize: "0.8rem", color: "green" }}>Page has loaded</div>
+    <div style={{ display: "flex", 
+    flexDirection: "column", 
+    gap: "0.5rem",
+    width: "300px", 
+    margin: "2rem auto", 
+    backgroundColor: "#F4CDD4",
+    padding: "2rem",
+    borderRadius: "8px",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}>
+    
+
+      <div style={{ 
+        fontSize: "0.8rem", 
+        color: "#008000" }}>Page has loaded</div>
+
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        style={{ padding: "0.5rem", fontSize: "1rem" }}
+
+        style={{ padding: "0.5rem", 
+        fontSize: "1rem" 
+        }}
         disabled={isLoading}
       />
       <input
@@ -98,12 +117,22 @@ export default function LoginPage() {
         style={{ padding: "0.5rem", fontSize: "1rem" }}
         disabled={isLoading}
       />
+      <button onClick={() => window.history.back()} 
+      style={{ padding: "0.5rem", 
+      fontSize: "1rem", 
+      backgroundColor: "#672146", 
+      color: "white", 
+      border: "none", 
+      cursor: "pointer" }}>   
+        Back
+      </button>
+
       <button 
         onClick={handleLogin} 
         style={{ 
           padding: "0.5rem", 
           fontSize: "1rem",
-          backgroundColor: isLoading ? "#ccc" : "#ea08ff",
+          backgroundColor: isLoading ? "#672146" : "#E31C79",
           color: "white",
           border: "none",
           cursor: isLoading ? "not-allowed" : "pointer"

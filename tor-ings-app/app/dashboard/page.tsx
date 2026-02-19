@@ -1,6 +1,6 @@
 import { createServerSupabase } from "../../lib/supabase/server";
 import { redirect } from "next/navigation";
-import LogoutButton from "./logout-button"; // We'll create this
+import LogoutButton from "./logout-button"; 
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabase();

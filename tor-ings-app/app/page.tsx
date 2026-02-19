@@ -11,7 +11,6 @@ export default function Home() {
         </div>
 
         <nav className={styles.nav}>
-          <Link href="/">Home</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/about">About</Link>
           <Link href="/login">Login</Link>
