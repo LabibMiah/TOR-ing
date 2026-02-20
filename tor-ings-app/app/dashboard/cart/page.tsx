@@ -80,12 +80,6 @@ export default async function CartPage() {
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <p>© 2026 TORS Health Equipment Ordering System. Sheffield Hallam University.</p>
-          <nav className={styles.footerNav}>
-            <Link href="/contact">Contact</Link>
-            <Link href="/about">About</Link>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
-          </nav>
         </div>
       </footer>
     </div>

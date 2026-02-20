@@ -45,12 +45,6 @@ export default async function BookingPage() {
             </Link>
           </div>
         </div>
-
-        <nav className={styles.nav}>
-          <Link href="/">Home</Link>
-          <Link href="/contact">Contact</Link>
-          <Link href="/about">About</Link>
-        </nav>
       </header>
 
       <main className={styles.main}>
