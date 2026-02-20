@@ -1,0 +1,297 @@
+.bookingContainer {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.bookingCard {
+  background: #f3f2f1;
+  border-radius: 14px;
+  padding: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.cardTitle {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 950;
+  color: #1f2937;
+}
+
+.cardDescription {
+  margin: 0 0 24px;
+  font-size: 15px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formSection {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.sectionTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.sectionDescription {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Equipment Grid */
+.equipmentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.equipmentItem {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  cursor: pointer;
+  accent-color: #642040;
+  flex-shrink: 0;
+}
+
+.checkboxLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.checkboxText {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 15px;
+}
+
+.checkboxDesc {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* Form Grid */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #374151;
+  display: flex;
+  gap: 4px;
+}
+
+.required {
+  color: #E31C79;
+}
+
+.input,
+.select,
+.textarea {
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #1f2937;
+  transition: all 0.2s ease;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #642040;
+  box-shadow: 0 0 0 3px rgba(100, 32, 64, 0.1);
+}
+
+.select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23642040' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Form Actions */
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.submitBtn {
+  flex: 1;
+  padding: 12px 20px;
+  background: #642040;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submitBtn:hover {
+  background: #522033;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(100, 32, 64, 0.25);
+}
+
+.submitBtn:active {
+  transform: translateY(0);
+}
+
+.cancelBtn {
+  flex: 1;
+  padding: 12px 20px;
+  background: #e5e7eb;
+  color: #1f2937;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancelBtn:hover {
+  background: #d1d5db;
+}
+
+/* Info Cards Sidebar */
+.infoCards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.infoCard {
+  background: #f3f2f1;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #E31C79;
+}
+
+.infoCardTitle {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #1f2937;
+}
+
+.infoList {
+  margin: 0;
+  padding: 0 0 0 16px;
+  list-style: none;
+}
+
+.infoList li {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 0;
+}
+
+.infoList li:before {
+  content: "✓";
+  position: absolute;
+  left: -16px;
+  color: #642040;
+  font-weight: bold;
+}
+
+.infoList li:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .bookingContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .equipmentGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .equipmentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .cancelBtn {
+    margin-top: 0;
+  }
+
+  .bookingCard {
+    padding: 16px;
+  }
+}

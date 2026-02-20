@@ -44,10 +44,13 @@ export default async function DashboardPage() {
           </div>
 
           <div className={styles.topActions}>
-            {/* Fixed cart button - now has text and matches other buttons */}
+           <Link href="/dashboard/booking" className={styles.actionLink}>
+              Booking
+            </Link>
             <Link href="/dashboard/cart" className={styles.actionLink}>
               Cart
             </Link>
+              
             <Link className={styles.actionLink} href="/dashboard/account">
               Account
             </Link>
@@ -100,6 +103,11 @@ export default async function DashboardPage() {
                 <div>Cart</div>
                 <span>
                   <Link href="/dashboard/cart">View Cart</Link>
+                </span>
+
+                <div>Booking</div>
+                <span>
+                  <Link href="/dashboard/booking">Book Equipment</Link>
                 </span>
 
                 <div>Help</div>
