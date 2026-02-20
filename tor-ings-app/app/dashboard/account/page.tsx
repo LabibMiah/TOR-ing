@@ -54,7 +54,7 @@ export default function AccountPage() {
 
     setNewPassword("");
     setConfirm("");
-    setMessage("Password updated successfully ✅");
+    setMessage("Password updated successfully ");
   };
 
   return (
