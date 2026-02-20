@@ -14,6 +14,7 @@ export default function Home() {
           <Link href="/contact">Contact</Link>
           <Link href="/about">About</Link>
           <Link href="/login">Login</Link>
+          <Link href="/equipment"> Equipment</Link>
           
         </nav>
       </header>

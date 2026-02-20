@@ -211,7 +211,7 @@ export default function LoginPage() {
 
         {/* Back Button */}
         <button
-          onClick={() => window.history.back()}
+          onClick={() => window.location.href = '/'}
           style={{
             padding: "0.8rem",
             fontSize: "1rem",

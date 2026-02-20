@@ -1,0 +1,108 @@
+.box {
+  width: 80%;
+  max-width: 1100px;
+  background-color: #F4CDD4;
+  margin: 0 auto;
+  padding: 30px;
+
+  
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.itembox {
+  display: flex;
+  gap: 25px;
+  align-items: flex-start;
+
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+
+
+}
+
+.imagebox {
+  width: 120px;
+  height: 120px;
+  background: #ddd;
+  border-radius: 12px;
+
+}
+
+.textArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+
+}
+
+.cartControls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  align-items: flex-end;
+}
+
+.qtyArea {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+
+}
+
+.addBtn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.footer {
+  background-color: #2b0f1f;
+  color: #ffffff;
+  border-top: 3px solid #ff4f8b;
+}
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.footerContent p {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.footerNav {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+}
+
+.footerNav a {
+  color: var(--text-white);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.footerNav a:hover {
+  text-decoration: underline;
+}
