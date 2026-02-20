@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
 
   if (!session) {
     console.log("🚫 No session, redirecting to login");
-    const redirectUrl = new URL("/login", request.url);
+    const redirectUrl = new URL("/Login", request.url);
     return NextResponse.redirect(redirectUrl);
   }
 

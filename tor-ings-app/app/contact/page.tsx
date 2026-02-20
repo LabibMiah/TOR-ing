@@ -13,7 +13,7 @@ export default function Contact() {
         <nav className={styles.nav}>
           <Link href="/">Home</Link>
           <Link href="/about">About</Link>
-          <Link href="/login">Login</Link>
+          <Link href="/Login">Login</Link>
         </nav>
       </header>
 
