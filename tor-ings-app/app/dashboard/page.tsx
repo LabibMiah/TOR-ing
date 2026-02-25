@@ -7,26 +7,26 @@ import LogoutButton from "./logout-button";
 export default async function DashboardPage() {
   const supabase = await createServerSupabase();
 
-  // Get the current user session
-  const { data: { session } } = await supabase.auth.getSession();
+  // FIX: Use getUser() instead of getSession() - this is secure!
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (error || !user) {
     redirect("/login");
   }
 
   // Fetch user data from accounts table
-  const { data: account, error } = await supabase
+  const { data: account, error: accountError } = await supabase
     .from('accounts')
     .select('*')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user.id)
     .single();
 
-  if (error) {
-    console.error("Error fetching account:", error);
+  if (accountError) {
+    console.error("Error fetching account:", accountError);
   }
 
   // Use name if available, otherwise fallback to email or default
-  const displayName = account?.forename || session.user.email?.split('@')[0] || "User";
+  const displayName = account?.forename || user.email?.split('@')[0] || "User";
   const status = "Active";
   const tier = account?.tier || "Tier 1";
 
@@ -44,22 +44,18 @@ export default async function DashboardPage() {
           </div>
 
           <div className={styles.topActions}>
-            {/* Fixed cart button - now has text and matches other buttons */}
+            <Link href="/dashboard/booking" className={styles.actionLink}>
+              Booking
+            </Link>
             <Link href="/dashboard/cart" className={styles.actionLink}>
               Cart
-            </Link>
+            </Link>  
             <Link className={styles.actionLink} href="/dashboard/account">
               Account
             </Link>
             <LogoutButton className={styles.logoutBtn} />
           </div>
         </div>
-
-        <nav className={styles.nav}>
-          <Link href="/">Home</Link>
-          <Link href="/contact">Contact</Link>
-          <Link href="/about">About</Link>
-        </nav>
       </header>
 
       <main className={styles.main}>
@@ -74,7 +70,14 @@ export default async function DashboardPage() {
               <h3 className={styles.cardTitle}>Welcome back, {displayName}!</h3>
 
               <div className={styles.kv}>
-                {/* You can add more user info here if needed */}
+                <div>Email</div>
+                <span>{user.email}</span>
+
+                <div>Tier</div>
+                <span>{tier}</span>
+
+                <div>Status</div>
+                <span>{status}</span>
               </div>
             </section>
 
@@ -102,6 +105,11 @@ export default async function DashboardPage() {
                   <Link href="/dashboard/cart">View Cart</Link>
                 </span>
 
+                <div>Booking</div>
+                <span>
+                  <Link href="/dashboard/booking">Book Equipment</Link>
+                </span>
+
                 <div>Help</div>
                 <span>
                   <Link href="/contact">Contact</Link>
@@ -124,7 +132,24 @@ export default async function DashboardPage() {
         </div>
       </main>
 
-      <footer className={styles.footer}>© 2026 My Website</footer>
+      <footer className={styles.footer}>
+  <div className={styles.footerContent}>
+    <p>© 2026 TORS Health Equipment Ordering System. Sheffield Hallam University.</p>
+    <nav className={styles.footerNav}>
+      <Link href="/contact">Contact</Link>
+      <Link href="/about">About</Link>
+      <Link href="https://www.shu.ac.uk/myhallam/support-at-hallam/tors" target="_blank" rel="noopener noreferrer">
+        TORS Info
+      </Link>
+      <Link href="https://www.shu.ac.uk/myhallam/support-at-hallam/tors" target="_blank" rel="noopener noreferrer">
+        Privacy
+      </Link>
+      <Link href="https://www.shu.ac.uk/myhallam/support-at-hallam/tors" target="_blank" rel="noopener noreferrer">
+        Terms
+      </Link>
+    </nav>
+  </div>
+</footer>
     </div>
   );
 }

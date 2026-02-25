@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "../../lib/supabase/client";
 import Link from "next/link";
+import styles from "./login.module.css"; // Import the CSS module
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -21,7 +22,7 @@ export default function LoginPage() {
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password 
-      });
+      });// this awaits for the password and email to be checked against the database and then returns a session if successful or an error if not
 
       if (error) {
         console.error("4. Login error details:", {
@@ -84,177 +85,83 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: "#f5f5f5",
-      fontFamily: "Arial, sans-serif"
-    }}>
-      <div style={{
-        width: "400px",
-        backgroundColor: "#F4CDD4",
-        padding: "3rem 2rem",
-        borderRadius: "12px",
-        boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
-        display: "flex",
-        flexDirection: "column",
-        gap: "1.2rem"
-      }}>
-        {/* Header */}
-        <div style={{
-          textAlign: "center",
-          marginBottom: "1rem"
-        }}>
-          <h1 style={{
-            fontSize: "2rem",
-            color: "#672146",
-            margin: "0 0 0.5rem 0",
-            fontWeight: "bold"
-          }}>
-            Welcome Back
-          </h1>
-          <p style={{
-            fontSize: "1rem",
-            color: "#666",
-            margin: 0
-          }}>
-            Please sign in to your account
-          </p>
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <div className={styles.brand}>
+            <h1>Welcome Back</h1>
+            <p>School of Healthcare - Sheffield Hallam University</p>
+          </div>
         </div>
+      </header>
 
-        {/* Email Input */}
-        <div style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.3rem"
-        }}>
-          <label style={{
-            fontSize: "1rem",
-            fontWeight: "bold",
-            color: "#333"
-          }}>
-            Email Address
-          </label>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyPress={handleKeyPress}
-            style={{
-              padding: "1rem",
-              fontSize: "1.1rem",
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              outline: "none",
-              transition: "border-color 0.2s",
-              ...(isLoading ? { backgroundColor: "#f0f0f0", cursor: "not-allowed" } : {})
-            }}
-            disabled={isLoading}
-          />
+      <main className={styles.main}>
+        <div className={styles.loginContainer}>
+          <div className={styles.loginCard}>
+            <h2>Sign In</h2>
+            <p>Please enter your credentials to access your account</p>
+
+            <div className={styles.form}>
+              <div className={styles.formGroup}>
+                <label htmlFor="email">Email Address</label>
+                <input
+                  id="email"
+                  type="email"
+                  className={styles.input}
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  className={styles.input}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <button 
+                className={styles.loginBtn}
+                onClick={handleLogin}
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
+              </button>
+            </div>
+
+            <div className={styles.links}>
+              <Link href="/signup">Don't have an account? Sign up</Link>
+              <button 
+                onClick={() => window.location.href = '/'}
+                className={styles.backBtn}
+              >
+                ← Back to Home
+              </button>
+            </div>
+          </div>
         </div>
+      </main>
 
-        {/* Password Input */}
-        <div style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.3rem"
-        }}>
-          <label style={{
-            fontSize: "1rem",
-            fontWeight: "bold",
-            color: "#333"
-          }}>
-            Password
-          </label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyPress={handleKeyPress}
-            style={{
-              padding: "1rem",
-              fontSize: "1.1rem",
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              outline: "none",
-              transition: "border-color 0.2s",
-              ...(isLoading ? { backgroundColor: "#f0f0f0", cursor: "not-allowed" } : {})
-            }}
-            disabled={isLoading}
-          />
+      <footer className={styles.footer}>
+        <div className={styles.footerContent}>
+          <p>© 2026 TORS Health Equipment Ordering System. Sheffield Hallam University.</p>
+          <nav className={styles.footerNav}>
+            <Link href="/">Home</Link>
+            <Link href="/contact">Contact</Link>
+            <Link href="/about">About</Link>
+          </nav>
         </div>
-
-        {/* Login Button */}
-        <button
-          onClick={handleLogin}
-          disabled={isLoading}
-          style={{
-            padding: "1rem",
-            fontSize: "1.2rem",
-            fontWeight: "bold",
-            backgroundColor: isLoading ? "#672146" : "#E31C79",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: isLoading ? "not-allowed" : "pointer",
-            marginTop: "0.5rem",
-            transition: "background-color 0.2s",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-          }}
-        >
-          {isLoading ? "LOGGING IN..." : "LOG IN"}
-        </button>
-
-        {/* Back Button */}
-        <button
-          onClick={() => window.history.back()}
-          style={{
-            padding: "0.8rem",
-            fontSize: "1rem",
-            backgroundColor: "#672146",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            transition: "background-color 0.2s"
-          }}
-        >
-          ← Back
-        </button>
-
-        {/* Sign Up Link */}
-        <div style={{
-          textAlign: "center",
-          marginTop: "0.5rem"
-        }}>
-          <Link 
-            href="/signup" 
-            style={{
-              fontSize: "1rem",
-              color: "#E31C79",
-              textDecoration: "none",
-              fontWeight: "bold",
-              cursor: "pointer"
-            }}
-          >
-            Don't have an account? Sign Up
-          </Link>
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          textAlign: "center",
-          marginTop: "1rem",
-          fontSize: "0.9rem",
-          color: "#666"
-        }}>
-          <p>School of Healthcare - Sheffield Hallam University</p>
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }

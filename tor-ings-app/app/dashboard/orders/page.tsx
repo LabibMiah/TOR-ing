@@ -1,8 +1,18 @@
 import Link from "next/link";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import styles from "./orders.module.css";
 
-export default function OrdersPage() {
-  // Fake placeholder orders just for UI puirproses only right now
+export default async function OrdersPage() {
+  const supabase = await createServerSupabase();
+
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  // Fake placeholder orders just for UI purposes right now
   const placeholderOrders = [
     { id: "ORD-1024", date: "19 Feb 2026", items: 3, status: "Processing" },
     { id: "ORD-1019", date: "12 Feb 2026", items: 1, status: "Completed" },
@@ -15,7 +25,7 @@ export default function OrdersPage() {
         <div className={styles.headerInner}>
           <div className={styles.brand}>
             <h1>Recent Orders</h1>
-            <p>View your latest equipment requests (coming soon)</p>
+            <p>View your latest equipment requests</p>
           </div>
 
           <div className={styles.topActions}>
@@ -24,12 +34,6 @@ export default function OrdersPage() {
             </Link>
           </div>
         </div>
-
-        <nav className={styles.nav}>
-          <Link href="/">Home</Link>
-          <Link href="/contact">Contact</Link>
-          <Link href="/about">About</Link>
-        </nav>
       </header>
 
       <main className={styles.main}>
@@ -40,8 +44,7 @@ export default function OrdersPage() {
           </div>
 
           <p className={styles.lead}>
-            This page will show your latest equipment orders and their status once ordering is
-            connected.
+            This page will show your latest equipment orders and their status once ordering is connected.
           </p>
 
           <div className={styles.list}>

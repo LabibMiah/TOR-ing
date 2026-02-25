@@ -55,98 +55,38 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
-.nav {
-  width: min(1100px, 92%);
-  margin: 18px auto 0;
-  display: flex;
-  gap: 28px;
-  flex-wrap: wrap;
-}
-
-.nav a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 800;
-  opacity: 0.95;
-}
-
-.nav a:hover {
-  text-decoration: underline;
-  opacity: 1;
-}
-
 .main {
-  width: min(1100px, 92%);
-  margin: 0 auto;
-  padding: 34px 0 54px;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
 }
 
-.shell {
+.signupContainer {
+  width: 100%;
+  max-width: 450px;
+}
+
+.signupCard {
   background: #ffffff;
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 32px;
+  padding: 40px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
-.shell h2 {
+.signupCard h2 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 900;
+  color: #1f2937;
+}
+
+.signupCard p {
   margin: 0 0 32px;
-  font-size: 30px;
-  font-weight: 950;
-  color: #1f2937;
-}
-
-.contactGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-}
-
-.contactInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.infoCard {
-  background: #f3f2f1;
-  border-radius: 14px;
-  padding: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-left: 5px solid #E31C79;
-}
-
-.infoCard h3 {
-  margin: 0 0 16px;
-  color: #642040;
-  font-size: 1.3rem;
-  font-weight: 900;
-}
-
-.infoCard p {
-  margin: 0;
-  color: #4b5563;
-  line-height: 1.8;
+  color: #6b7280;
   font-weight: 500;
-}
-
-.infoCard strong {
-  color: #1f2937;
-  font-weight: 800;
-}
-
-.contactForm {
-  background: #f3f2f1;
-  border-radius: 14px;
-  padding: 28px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.contactForm h3 {
-  margin: 0 0 24px;
-  color: #642040;
-  font-size: 1.5rem;
-  font-weight: 900;
 }
 
 .form {
@@ -167,32 +107,42 @@
   font-size: 0.95rem;
 }
 
-.input,
-.select,
-.textarea {
-  padding: 12px 14px;
+.input {
+  padding: 14px 16px;
   border-radius: 10px;
   border: 1px solid rgba(0, 0, 0, 0.14);
-  font-size: 15px;
+  font-size: 16px;
   background: #fff;
-  font-family: inherit;
+  transition: all 0.2s;
 }
 
-.input:focus,
-.select:focus,
-.textarea:focus {
+.input:focus {
   outline: none;
   border-color: #642040;
   box-shadow: 0 0 0 3px rgba(100, 32, 64, 0.12);
 }
 
-.textarea {
-  resize: vertical;
-  min-height: 120px;
+.input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
 }
 
-.submitBtn {
-  padding: 14px 28px;
+.passwordMatch {
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.matchSuccess {
+  color: #10b981;
+}
+
+.matchError {
+  color: #ef4444;
+}
+
+.signupBtn {
+  padding: 16px;
   background: #642040;
   color: #fff;
   border: none;
@@ -201,11 +151,38 @@
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.2s;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
-.submitBtn:hover {
+.signupBtn:hover:not(:disabled) {
   background: #7b2b55;
+}
+
+.signupBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.links {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.links a {
+  color: #642040;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.links a:hover {
+  color: #E31C79;
+  text-decoration: underline;
 }
 
 .footer {
@@ -259,8 +236,8 @@
     font-size: 32px;
   }
   
-  .contactGrid {
-    grid-template-columns: 1fr;
+  .signupCard {
+    padding: 30px 20px;
   }
   
   .footerContent {
