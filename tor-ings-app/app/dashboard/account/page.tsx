@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "../../../lib/supabase/client";
 import styles from "./account.module.css";
+import EnlargeText from "@/app/accessibility/enlarge-text";
 
 type Booking = {
   booking_id: string;
@@ -164,6 +165,18 @@ export default function AccountPage() {
             <h2 className={styles.pageTitle}>Your details</h2>
             <div className={styles.badge}>Status: {status}</div>
           </div>
+
+          {/* accessibility section */}
+        <div className={styles.accessibilitySection}>
+           <h3>accessibility settings</h3>
+        <div className={styles.accessibilityToggle}>
+         <div>
+        <p className={styles.toggleLabel}>bigger text</p>
+          <p className={styles.toggleDescription}>increase text size for better readability</p>
+          </div>
+          <EnlargeText />
+         </div>
+        </div>
 
           <div className={styles.grid}>
             <div className={styles.card}>

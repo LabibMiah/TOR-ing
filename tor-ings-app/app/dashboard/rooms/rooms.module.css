@@ -1,60 +1,24 @@
-.page {
-  min-height: 100vh;
-  background: #f6f4f2;
+.pageContent {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.header {
-  background: #642040;
-  color: #fff;
-  padding: 32px 22px;
+.contentHeader {
+  background: linear-gradient(135deg, #672146 0%, #8a2b5e 100%);
+  padding: 32px 32px 24px;
+  width: 100%;
 }
 
-.headerInner {
-  width: min(1100px, 92%);
-  margin: 0 auto;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 18px;
-}
-
-.brand h1 {
+.contentHeaderTitle {
   margin: 0;
-  font-size: 38px;
-  font-weight: 900;
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
 }
 
-.brand p {
-  margin: 10px 0 0;
-  opacity: 0.9;
-  font-weight: 600;
-}
-
-.topActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.backBtn {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 800;
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.backBtn:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.main {
-  width: min(1100px, 92%);
-  margin: 0 auto;
-  padding: 34px 0 54px;
+.contentArea {
+  padding: 32px;
   flex: 1;
 }
 
@@ -62,73 +26,104 @@
   background: #ffffff;
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 22px;
+  padding: 32px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .bookingSummary {
   background: #f3f2f1;
   border-radius: 14px;
-  padding: 18px;
-  margin-bottom: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin-bottom: 32px;
 }
 
 .bookingSummary h2 {
   margin: 0 0 12px;
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 700;
   color: #1f2937;
 }
 
 .bookingSummary p {
   margin: 6px 0;
   color: #4b5563;
-  font-weight: 600;
 }
 
 .bookingDetails {
-  max-width: 500px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .formGroup {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .formGroup label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 800;
+  font-weight: 600;
   color: #374151;
+  font-size: 14px;
 }
 
 .select, .input {
-  width: 100%;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  font-size: 15px;
-  background: #fff;
+  border: 1px solid #e5e7eb;
+  font-size: 16px;
+  background: white;
+  transition: all 0.2s;
 }
 
 .select:focus, .input:focus {
   outline: none;
-  border-color: #642040;
-  box-shadow: 0 0 0 3px rgba(100, 32, 64, 0.12);
+  border-color: #672146;
+  box-shadow: 0 0 0 3px rgba(103, 33, 70, 0.1);
+}
+
+.availabilityStatus {
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.checking {
+  color: #f59e0b;
+  background: #fffbeb;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.available {
+  color: #10b981;
+  background: #ecfdf5;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.unavailable {
+  color: #ef4444;
+  background: #fef2f2;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
 .confirmBtn {
   width: 100%;
-  padding: 16px;
-  background: #642040;
-  color: #fff;
+  padding: 14px;
+  background: #672146;
+  color: white;
   border: none;
   border-radius: 10px;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  margin-top: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: background-color 0.2s;
+  margin-top: 8px;
 }
 
 .confirmBtn:hover:not(:disabled) {
@@ -136,51 +131,54 @@
 }
 
 .confirmBtn:disabled {
-  opacity: 0.5;
+  background: #ccc;
   cursor: not-allowed;
 }
 
 .roomDetails {
-  margin-top: 30px;
-  padding: 18px;
+  margin-top: 32px;
+  padding: 20px;
   background: #f3f2f1;
   border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .roomDetails h3 {
   margin: 0 0 12px;
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 700;
   color: #1f2937;
 }
 
 .roomDetails p {
   margin: 6px 0;
   color: #4b5563;
-  font-weight: 600;
-}
-
-.footer {
-  background: #111827;
-  color: #fff;
-  text-align: center;
-  padding: 18px 10px;
 }
 
 .noRooms {
   margin-top: 8px;
   color: #ef4444;
   font-size: 14px;
-  font-weight: 600;
 }
 
-@media (max-width: 900px) {
-  .headerInner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .brand h1 {
-    font-size: 32px;
-  }
+.footer {
+  background: #111827;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: auto;
+}
+
+.footer p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.durationDisplay {
+  padding: 10px;
+  background: #f3f2f1;
+  border-radius: 8px;
+  text-align: center;
+  color: #1f2937;
+  font-size: 14px;
 }

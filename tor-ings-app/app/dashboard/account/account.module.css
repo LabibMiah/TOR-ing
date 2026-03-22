@@ -192,6 +192,44 @@
   padding: 18px 10px;
 }
 
+/* accessibility section */
+.accessibilitySection {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(0, 0, 0, 0.08);
+}
+
+.accessibilitySection h3 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #1f2937;
+  text-transform: lowercase;
+}
+
+.accessibilityToggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f3f2f1;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.toggleLabel {
+  margin: 0 0 4px;
+  font-weight: 800;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.toggleDescription {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
 @media (max-width: 900px) {
   .headerInner {
     flex-direction: column;

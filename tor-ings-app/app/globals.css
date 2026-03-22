@@ -38,4 +38,62 @@
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 8px rgba(103, 33, 70, 0.15);
   --shadow-lg: 0 8px 16px rgba(103, 33, 70, 0.2);
+} 
+
+
+html.bigger-text {
+  font-size: 120% !important;
+}
+
+html.bigger-text body {
+  font-size: inherit !important;
+}
+
+html.bigger-text p,
+html.bigger-text span,
+html.bigger-text div,
+html.bigger-text li,
+html.bigger-text a,
+html.bigger-text label,
+html.bigger-text button,
+html.bigger-text input,
+html.bigger-text select,
+html.bigger-text textarea,
+html.bigger-text h1,
+html.bigger-text h2,
+html.bigger-text h3,
+html.bigger-text h4,
+html.bigger-text h5,
+html.bigger-text h6 {
+  font-size: inherit !important;
+}
+
+html.bigger-text h1 {
+  font-size: 2.2rem !important;
+}
+
+html.bigger-text h2 {
+  font-size: 1.8rem !important;
+}
+
+html.bigger-text h3 {
+  font-size: 1.5rem !important;
+}
+
+html.bigger-text h4 {
+  font-size: 1.2rem !important;
+}
+
+/* make sidebar text larger too */
+html.bigger-text .sidebar,
+html.bigger-text .sidebar * {
+  font-size: inherit !important;
+}
+
+html.bigger-text .sidebar .userName {
+  font-size: 1.1rem !important;
+}
+
+html.bigger-text .navLink {
+  font-size: 1rem !important;
 }

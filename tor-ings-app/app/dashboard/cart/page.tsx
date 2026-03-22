@@ -238,7 +238,7 @@ export default function CartPage() {
                           </p>
                           {availableQty < item.quantity && (
                             <p className={styles.warning}>
-                              ⚠️ You have {item.quantity} in cart but only {availableQty} available
+                              ! You have {item.quantity} in cart but only {availableQty} available
                             </p>
                           )}
                         </div>
