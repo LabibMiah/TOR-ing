@@ -1,0 +1,430 @@
+.introCard {
+  margin-top: 14px;
+  background: #f3f2f1;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.introText {
+  margin: 0;
+  color: #374151;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.adminSpace {
+  margin-top: 18px;
+  display: grid;
+  gap: 18px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  background: linear-gradient(135deg, #642040 0%, #7b2a52 100%);
+  color: #fff;
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+  font-weight: 900;
+  opacity: 0.8;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.heroText {
+  margin: 12px 0 0;
+  max-width: 720px;
+  line-height: 1.6;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.heroActions {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.primaryButton,
+.secondaryButton,
+.userLink,
+.inlineLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 44px;
+  border: 1px solid transparent;
+  font-size: 14px;
+}
+
+.primaryButton {
+  background: #ffffff;
+  color: #642040;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.userLink:hover,
+.inlineLink:hover {
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.userLink {
+  min-height: 44px;
+  padding: 0 16px;
+  background: #f6d479;
+  color: #111827;
+}
+
+.statusNotice {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(100, 32, 64, 0.08);
+  border: 1px solid rgba(100, 32, 64, 0.12);
+  color: #642040;
+  font-weight: 800;
+}
+
+.tabRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tab,
+.activeTab {
+  text-align: left;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #f3f2f1;
+  cursor: pointer;
+}
+
+.activeTab {
+  background: #ffffff;
+  border-color: rgba(100, 32, 64, 0.35);
+  box-shadow: 0 10px 26px rgba(100, 32, 64, 0.08);
+}
+
+.tabLabel {
+  display: block;
+  margin-bottom: 6px;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.tabDescription {
+  display: block;
+  color: #6b7280;
+  line-height: 1.5;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sectionGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  background: #f3f2f1;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.panelTitle {
+  margin: 0;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.panelText {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.inlineLink {
+  padding: 11px 14px;
+  background: #fff;
+  color: #642040;
+  border: 1px solid rgba(100, 32, 64, 0.16);
+  white-space: nowrap;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metricCard {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.metricLabel {
+  margin: 0;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.metricValue {
+  margin: 10px 0 8px;
+  color: #111827;
+  font-size: 28px;
+  font-weight: 950;
+}
+
+.metricText {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  color: #6b7280;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 900;
+}
+
+.table td {
+  color: #1f2937;
+  font-weight: 650;
+}
+
+.rowMeta {
+  display: block;
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chart {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+  min-height: 240px;
+  padding-top: 20px;
+}
+
+.barGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.barTrack {
+  width: 100%;
+  max-width: 72px;
+  min-height: 180px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 16px;
+  background: rgba(100, 32, 64, 0.08);
+}
+
+.barFill {
+  width: 100%;
+  border-radius: 12px 12px 8px 8px;
+  background: linear-gradient(180deg, #b84f7e 0%, #642040 100%);
+}
+
+.barValue,
+.barLabel {
+  font-weight: 900;
+  color: #374151;
+}
+
+.barValue {
+  font-size: 13px;
+}
+
+.barLabel {
+  font-size: 14px;
+}
+
+.scheduleList {
+  display: grid;
+  gap: 14px;
+}
+
+.scheduleCard {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.scheduleTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.scheduleTitle {
+  margin: 0;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.scheduleMeta,
+.scheduleLead,
+.scheduleId {
+  margin: 8px 0 0;
+  color: #4b5563;
+  font-weight: 650;
+}
+
+.scheduleId {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.statusActive,
+.statusPending,
+.statusSuspended,
+.statusReady,
+.statusReview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.statusActive,
+.statusReady {
+  background: rgba(21, 128, 61, 0.12);
+  color: #166534;
+}
+
+.statusPending {
+  background: rgba(180, 83, 9, 0.12);
+  color: #b45309;
+}
+
+.statusSuspended,
+.statusReview {
+  background: rgba(185, 28, 28, 0.12);
+  color: #b91c1c;
+}
+
+@media (max-width: 1000px) {
+  .hero {
+    flex-direction: column;
+  }
+
+  .heroActions {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .metricGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tabRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .metricGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .panelHeader,
+  .scheduleTop {
+    flex-direction: column;
+  }
+
+  .chart {
+    min-height: 180px;
+  }
+
+  .barTrack {
+    min-height: 120px;
+  }
+}

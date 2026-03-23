@@ -44,6 +44,9 @@ export default async function DashboardPage() {
           </div>
 
           <div className={styles.topActions}>
+            <Link href="/dashboard/admin" className={styles.actionLink}>
+              Admin
+            </Link>
            <Link href="/dashboard/booking" className={styles.actionLink}>
               Booking
             </Link>
@@ -102,6 +105,11 @@ export default async function DashboardPage() {
                 <div>Booking</div>
                 <span>
                   <Link href="/dashboard/booking">Book Equipment</Link>
+                </span>
+
+                <div>Admin panel</div>
+                <span>
+                  <Link href="/dashboard/admin">Open admin</Link>
                 </span>
 
                 <div>Help</div>
