@@ -2,12 +2,15 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .contentHeader {
   background: linear-gradient(135deg, #672146 0%, #8a2b5e 100%);
   padding: 32px 32px 24px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .contentHeaderTitle {
@@ -26,6 +29,9 @@
 .contentArea {
   padding: 32px;
   flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
 }
 
 .shell {
@@ -33,6 +39,8 @@
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Stats Grid */
@@ -101,11 +109,16 @@
   margin-bottom: 24px;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-start;
+  padding: 4px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .searchContainer {
-  flex: 2;
-  min-width: 250px;
+  width: 280px;
+  flex-shrink: 0;
+  position: relative;
 }
 
 .searchInput {
@@ -115,6 +128,9 @@
   border: 1px solid #e5e7eb;
   font-size: 14px;
   background: white;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s;
 }
 
 .searchInput:focus {
@@ -127,12 +143,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+  background: transparent;
+  padding: 0;
 }
 
 .filterContainer label {
   font-weight: 500;
   color: #374151;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .filterSelect {
@@ -142,6 +162,15 @@
   font-size: 14px;
   background: white;
   cursor: pointer;
+  width: 130px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #672146;
+  box-shadow: 0 0 0 3px rgba(103, 33, 70, 0.1);
 }
 
 .expireBtn, .refreshBtn {
@@ -152,20 +181,27 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .expireBtn:hover, .refreshBtn:hover {
   background: #e5e7eb;
+  border-color: #d1d5db;
 }
 
 /* Table */
 .tableContainer {
   overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 800px;
 }
 
 .table th {
@@ -349,6 +385,8 @@ button:disabled {
   text-align: center;
   padding: 20px;
   margin-top: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .footer p {
@@ -358,9 +396,29 @@ button:disabled {
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 @media (max-width: 1024px) {
   .statsGrid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .searchContainer {
+    width: 240px;
+  }
+  
+  .filterSelect {
+    width: 120px;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -380,10 +438,26 @@ button:disabled {
   .controlsBar {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+  
+  .searchContainer {
+    width: 100%;
   }
   
   .filterContainer {
     justify-content: space-between;
+    width: 100%;
+  }
+  
+  .filterSelect {
+    flex: 1;
+    width: auto;
+  }
+  
+  .expireBtn, .refreshBtn {
+    text-align: center;
+    width: 100%;
   }
   
   .table th, .table td {
@@ -392,5 +466,54 @@ button:disabled {
   
   .actions {
     flex-direction: column;
+    gap: 6px;
+  }
+  
+  .confirmBtn, .declineBtn, .cancelBtn, .reopenBtn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .statCard {
+    padding: 12px;
+  }
+  
+  .statValue {
+    font-size: 24px;
+  }
+  
+  .contentHeaderTitle {
+    font-size: 24px;
+  }
+  
+  .shell {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contentArea {
+    padding: 12px;
+  }
+  
+  .table th, .table td {
+    padding: 6px;
+    font-size: 12px;
+  }
+  
+  .bookingId {
+    font-size: 11px;
+  }
+  
+  .statusBadge {
+    font-size: 10px;
+    padding: 2px 6px;
   }
 }

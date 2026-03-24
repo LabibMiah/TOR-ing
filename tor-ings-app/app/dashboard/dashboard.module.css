@@ -3,6 +3,8 @@
   display: flex;
   min-height: 100vh;
   background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
 }
 
 /* Sidebar */
@@ -16,6 +18,10 @@
   height: 100vh;
   overflow-y: auto;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .sidebarHeader {
@@ -133,6 +139,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* Purple Header Strip */
@@ -140,7 +149,10 @@
   background: linear-gradient(135deg, #672146 0%, #8a2b5e 100%);
   padding: 32px 32px 24px;
   width: 100%;
+  margin: 0;
+  box-sizing: border-box;
 }
+
 
 .contentHeaderTitle {
   margin: 0;
@@ -153,6 +165,9 @@
 .contentArea {
   padding: 32px;
   flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0;
 }
 
 /* Dashboard specific styles */
