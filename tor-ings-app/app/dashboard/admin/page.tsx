@@ -144,6 +144,9 @@ export default async function AdminPage() {
             <Link href="/dashboard/admin/users" className={styles.actionBtn}>
               <span></span> Manage Users
             </Link>
+            <Link href="/dashboard/admin/reports" className={styles.actionBtn}>
+              <span></span> View Reports
+            </Link>
           </div>
         </div>
 

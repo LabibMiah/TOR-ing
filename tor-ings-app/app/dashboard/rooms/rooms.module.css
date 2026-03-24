@@ -182,3 +182,194 @@
   color: #1f2937;
   font-size: 14px;
 }
+
+.dateError {
+  margin-top: 8px;
+  padding: 10px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.bookedInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background-color: #fef3c7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #92400e;
+  margin-top: 8px;
+}
+
+.bookedIcon {
+  font-size: 16px;
+}
+
+.durationDisplay {
+  margin-top: 8px;
+  padding: 10px;
+  background-color: #f3f2f1;
+  border-radius: 8px;
+  text-align: center;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.availabilityStatus {
+  margin-top: 12px;
+}
+
+.checking {
+  padding: 10px;
+  background-color: #fef9c3;
+  color: #854d0e;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.available {
+  padding: 10px;
+  background-color: #d1fae5;
+  color: #065f46;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.unavailable {
+  padding: 10px;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.select, .input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+}
+
+.select:focus, .input:focus {
+  outline: none;
+  border-color: #672146;
+  box-shadow: 0 0 0 3px rgba(103, 33, 70, 0.1);
+}
+
+.confirmBtn {
+  width: 100%;
+  padding: 14px;
+  background: #672146;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 16px;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background: #7b2b55;
+}
+
+.confirmBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.datePicker {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.datePicker:focus {
+  outline: none;
+  border-color: #672146;
+  box-shadow: 0 0 0 3px rgba(103, 33, 70, 0.1);
+}
+
+.datePicker:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.bookedInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background-color: #fef3c7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #92400e;
+  margin-top: 8px;
+}
+
+.bookedIcon {
+  font-size: 16px;
+}
+
+.limitInfo {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #fffbeb;
+  color: #b45309;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.durationError {
+  margin-top: 8px;
+  padding: 10px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.warningText {
+  color: #dc2626;
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.durationDisplay {
+  margin-top: 8px;
+  padding: 10px;
+  background-color: #f3f2f1;
+  border-radius: 8px;
+  text-align: center;
+  color: #1f2937;
+  font-size: 14px;
+}

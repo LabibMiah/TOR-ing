@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import DatePicker from "react-datepicker";
 import styles from "./rooms.module.css";
 
 type Room = {
@@ -27,6 +28,13 @@ type CartItem = {
   category: string | null;
 };
 
+type BookedDate = {
+  start_date: string;
+  end_date: string;
+};
+
+const MAX_BOOKING_DAYS = 5;
+
 export default function RoomsPage() {
   const supabase = createClient();
   const router = useRouter();
@@ -35,8 +43,12 @@ export default function RoomsPage() {
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
   const [selectedType, setSelectedType] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [dateError, setDateError] = useState<string>("");
+  const [durationError, setDurationError] = useState<string>("");
+  const [bookedRanges, setBookedRanges] = useState<Map<number, BookedDate[]>>(new Map());
+  const [unavailableDates, setUnavailableDates] = useState<Set<string>>(new Set());
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState("");
@@ -52,7 +64,6 @@ export default function RoomsPage() {
         return;
       }
 
-      // Get user name
       const { data: account } = await supabase
         .from('accounts')
         .select('forename')
@@ -61,7 +72,6 @@ export default function RoomsPage() {
       
       setUserName(account?.forename || session.user.email?.split('@')[0] || "User");
 
-      // Load cart
       const savedCart = localStorage.getItem('cart');
       if (!savedCart || JSON.parse(savedCart).length === 0) {
         router.push("/dashboard/booking");
@@ -69,7 +79,6 @@ export default function RoomsPage() {
       }
       setCartItems(JSON.parse(savedCart));
 
-      // Load rooms
       const { data } = await supabase
         .from('Rooms')
         .select('*')
@@ -79,14 +88,65 @@ export default function RoomsPage() {
         setRooms(data);
         setFilteredRooms(data);
         
-        // Get unique room types
         const types = [...new Set(data.map(room => room.Type).filter(Boolean))] as string[];
         setRoomTypes(types);
+      }
+
+      // Load all confirmed and pending bookings
+      const { data: bookings } = await supabase
+        .from('bookings')
+        .select('room_id, start_date, end_date')
+        .in('status', ['confirmed', 'pending']);
+      
+      if (bookings) {
+        const bookedMap = new Map<number, BookedDate[]>();
+        bookings.forEach((booking: any) => {
+          if (!bookedMap.has(booking.room_id)) {
+            bookedMap.set(booking.room_id, []);
+          }
+          bookedMap.get(booking.room_id)!.push({
+            start_date: booking.start_date,
+            end_date: booking.end_date,
+          });
+        });
+        setBookedRanges(bookedMap);
+        console.log("Loaded bookings:", bookedMap);
       }
     }
 
     loadData();
   }, []);
+
+  // Update unavailable dates when selected room changes
+  useEffect(() => {
+    if (!selectedRoom) {
+      setUnavailableDates(new Set());
+      return;
+    }
+    
+    const roomBookings = bookedRanges.get(selectedRoom) || [];
+    console.log(`Room ${selectedRoom} has ${roomBookings.length} booking ranges:`, roomBookings);
+    
+    const unavailable = new Set<string>();
+    
+    roomBookings.forEach(booking => {
+      const start = new Date(booking.start_date);
+      const end = new Date(booking.end_date);
+      
+      console.log(`Adding dates from ${booking.start_date} to ${booking.end_date}`);
+      
+      // Add every date in the range to unavailable set
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        unavailable.add(dateStr);
+        console.log(`  Added: ${dateStr}`);
+      }
+    });
+    
+    console.log(`Total unavailable dates for room ${selectedRoom}: ${unavailable.size}`);
+    console.log("Unavailable dates:", Array.from(unavailable));
+    setUnavailableDates(unavailable);
+  }, [selectedRoom, bookedRanges]);
 
   // Filter rooms when type changes
   useEffect(() => {
@@ -94,26 +154,51 @@ export default function RoomsPage() {
       const filtered = rooms.filter(room => room.Type === selectedType);
       setFilteredRooms(filtered);
       setSelectedRoom(null);
+      setStartDate(null);
+      setEndDate(null);
+      setAvailabilityStatus(null);
     } else {
       setFilteredRooms(rooms);
     }
   }, [selectedType, rooms]);
 
+  // Validate dates and duration whenever they change
+  useEffect(() => {
+    setDateError("");
+    setDurationError("");
+    
+    if (startDate && endDate) {
+      if (startDate > endDate) {
+        setDateError("Start date cannot be after end date");
+      }
+      
+      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (diffDays > MAX_BOOKING_DAYS) {
+        setDurationError(`Maximum booking duration is ${MAX_BOOKING_DAYS} days (you selected ${diffDays} days)`);
+      }
+    }
+  }, [startDate, endDate]);
+
   // Check availability when dates or room changes
   useEffect(() => {
     async function checkAvailability() {
-      if (!selectedRoom || !startDate || !endDate) {
+      if (!selectedRoom || !startDate || !endDate || dateError || durationError) {
         setAvailabilityStatus(null);
         return;
       }
 
       setCheckingAvailability(true);
       
+      const start = startDate.toISOString().split('T')[0];
+      const end = endDate.toISOString().split('T')[0];
+      
       const { data, error } = await supabase
         .rpc('is_room_available', {
           p_room_id: selectedRoom,
-          p_start_date: startDate,
-          p_end_date: endDate
+          p_start_date: start,
+          p_end_date: end
         });
       
       if (!error) {
@@ -126,9 +211,41 @@ export default function RoomsPage() {
     }
 
     checkAvailability();
-  }, [selectedRoom, startDate, endDate]);
+  }, [selectedRoom, startDate, endDate, dateError, durationError]);
 
-  // Format room display
+  // Filter function for date picker - disables booked dates
+  const isDateDisabled = (date: Date): boolean => {
+    const dateStr = date.toISOString().split('T')[0];
+    const isDisabled = unavailableDates.has(dateStr);
+    if (isDisabled && selectedRoom) {
+      console.log(`Date ${dateStr} is DISABLED for room ${selectedRoom}`);
+    }
+    return isDisabled;
+  };
+
+  const filterStartDate = (date: Date): boolean => {
+    const disabled = isDateDisabled(date);
+    return !disabled;
+  };
+
+  const filterEndDate = (date: Date): boolean => {
+    if (!startDate) return filterStartDate(date);
+    if (date < startDate) return false;
+    
+    const diffTime = Math.abs(date.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    if (diffDays > MAX_BOOKING_DAYS) return false;
+    
+    const disabled = isDateDisabled(date);
+    return !disabled;
+  };
+
+  const handleStartDateChange = (date: Date | null) => {
+    setStartDate(date);
+    setEndDate(null);
+    setAvailabilityStatus(null);
+  };
+
   const formatRoomDisplay = (room: Room) => {
     const letter = room.Letter || '';
     const roomNumber = room.Room || '';
@@ -137,46 +254,47 @@ export default function RoomsPage() {
     return `${roomCode} - ${building}`;
   };
 
-  // Get min and max dates for date picker
   const getMinDate = () => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    today.setHours(0, 0, 0, 0);
+    return today;
   };
 
   const getMaxDate = () => {
     const max = new Date();
     max.setMonth(max.getMonth() + 6);
-    return max.toISOString().split('T')[0];
+    return max;
   };
 
-  const calculateDuration = () => {
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const diffTime = Math.abs(end.getTime() - start.getTime());
+  const durationDays = useMemo(() => {
+    if (startDate && endDate && !dateError) {
+      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
       return diffDays;
     }
     return 0;
-  };
+  }, [startDate, endDate, dateError]);
 
   const handleConfirmBooking = async () => {
     if (!selectedRoom) {
       alert("Please select a room");
       return;
     }
-    if (!startDate) {
-      alert("Please select a start date");
+    if (!startDate || !endDate) {
+      alert("Please select dates");
       return;
     }
-    if (!endDate) {
-      alert("Please select an end date");
+    
+    if (dateError) {
+      alert(dateError);
       return;
     }
-    if (new Date(startDate) > new Date(endDate)) {
-      alert("End date must be after start date");
+    
+    if (durationError) {
+      alert(durationError);
       return;
     }
+    
     if (!availabilityStatus) {
       alert("Room is not available for the selected dates");
       return;
@@ -190,29 +308,25 @@ export default function RoomsPage() {
 
       const selectedRoomData = rooms.find(r => r.Room_ID === selectedRoom);
       const roomDisplay = formatRoomDisplay(selectedRoomData!);
-      const durationDays = calculateDuration();
+      const start = startDate.toISOString().split('T')[0];
+      const end = endDate.toISOString().split('T')[0];
 
-      // Create booking with start and end dates
       const { data: booking, error: bookingError } = await supabase
-    .from('bookings')
-    .insert({
-      user_id: session.user.id,
-      user_name: userName,
-      room_id: selectedRoom,
-      room_name: roomDisplay,
-      start_date: startDate,
-      end_date: endDate,
-      status: 'pending'  // This should be lowercase to match the enum
-    })
-    .select()
-    .single();
+        .from('bookings')
+        .insert({
+          user_id: session.user.id,
+          user_name: userName,
+          room_id: selectedRoom,
+          room_name: roomDisplay,
+          start_date: start,
+          end_date: end,
+          status: 'pending'
+        })
+        .select()
+        .single();
 
-      if (bookingError) {
-        console.error("Booking error details:", bookingError);
-        throw bookingError;
-      }
+      if (bookingError) throw bookingError;
 
-      // Create booking items
       const bookingItems = cartItems.map(item => ({
         booking_id: booking.booking_id,
         equipment_id: item.id,
@@ -226,7 +340,6 @@ export default function RoomsPage() {
 
       if (itemsError) throw itemsError;
 
-      // Clear cart
       localStorage.removeItem('cart');
       
       alert(`Booking confirmed for ${durationDays} days!`);
@@ -240,7 +353,7 @@ export default function RoomsPage() {
     }
   };
 
-  const durationDays = calculateDuration();
+  const isFormValid = selectedRoom && startDate && endDate && !dateError && !durationError && availabilityStatus === true;
 
   return (
     <div className={styles.pageContent}>
@@ -254,6 +367,7 @@ export default function RoomsPage() {
             <h2>Booking Summary</h2>
             <p><strong>Items to book:</strong> {cartItems.length} items</p>
             <p><strong>Total quantity:</strong> {cartItems.reduce((sum, i) => sum + i.quantity, 0)}</p>
+            <p className={styles.limitInfo}>⚠️ Maximum booking: {MAX_BOOKING_DAYS} days</p>
             {durationDays > 0 && (
               <p><strong>Duration:</strong> {durationDays} day{durationDays !== 1 ? 's' : ''}</p>
             )}
@@ -284,6 +398,8 @@ export default function RoomsPage() {
                   const value = e.target.value;
                   setSelectedRoom(value ? parseInt(value) : null);
                   setAvailabilityStatus(null);
+                  setStartDate(null);
+                  setEndDate(null);
                 }}
                 className={styles.select}
               >
@@ -302,44 +418,69 @@ export default function RoomsPage() {
             {/* Start Date */}
             <div className={styles.formGroup}>
               <label>Start Date *</label>
-              <input 
-                type="date" 
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setAvailabilityStatus(null);
-                }}
-                min={getMinDate()}
-                max={getMaxDate()}
-                className={styles.input}
+              <DatePicker
+                selected={startDate}
+                onChange={handleStartDateChange}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                minDate={getMinDate()}
+                maxDate={getMaxDate()}
+                filterDate={filterStartDate}
+                placeholderText="Select start date"
+                className={styles.datePicker}
+                dateFormat="dd/MM/yyyy"
               />
+              {selectedRoom && unavailableDates.size > 0 && (
+                <div className={styles.bookedInfo}>
+                  <span className={styles.bookedIcon}>📅</span>
+                  <span>This room has {unavailableDates.size} unavailable date(s) (grayed out in calendar)</span>
+                </div>
+              )}
             </div>
 
             {/* End Date */}
             <div className={styles.formGroup}>
               <label>End Date *</label>
-              <input 
-                type="date" 
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setAvailabilityStatus(null);
-                }}
-                min={startDate || getMinDate()}
-                max={getMaxDate()}
-                className={styles.input}
+              <DatePicker
+                selected={endDate}
+                onChange={(date: Date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate || getMinDate()}
+                maxDate={getMaxDate()}
+                filterDate={filterEndDate}
+                placeholderText="Select end date"
+                className={styles.datePicker}
+                dateFormat="dd/MM/yyyy"
+                disabled={!startDate}
               />
             </div>
 
+            {/* Date Error Message */}
+            {dateError && (
+              <div className={styles.dateError}>
+                ⚠️ {dateError}
+              </div>
+            )}
+
+            {/* Duration Error Message */}
+            {durationError && (
+              <div className={styles.durationError}>
+                ⚠️ {durationError}
+              </div>
+            )}
+
             {/* Duration Display */}
-            {durationDays > 0 && (
+            {durationDays > 0 && !dateError && !durationError && (
               <div className={styles.durationDisplay}>
                 <strong>Duration:</strong> {durationDays} day{durationDays !== 1 ? 's' : ''}
               </div>
             )}
 
             {/* Availability Status */}
-            {selectedRoom && startDate && endDate && (
+            {selectedRoom && startDate && endDate && !dateError && !durationError && (
               <div className={styles.availabilityStatus}>
                 {checkingAvailability ? (
                   <p className={styles.checking}>Checking availability...</p>
@@ -353,7 +494,7 @@ export default function RoomsPage() {
 
             <button 
               onClick={handleConfirmBooking}
-              disabled={loading || !availabilityStatus}
+              disabled={loading || !isFormValid}
               className={styles.confirmBtn}
             >
               {loading ? "Processing..." : "Confirm Booking"}

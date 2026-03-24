@@ -1,3 +1,5 @@
+@import 'react-datepicker/dist/react-datepicker.css';
+
 :root {
   /* Sheffield Hallam University Brand Colors */
   --hallam-maroon: #672146;  
