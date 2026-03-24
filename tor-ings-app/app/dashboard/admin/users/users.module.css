@@ -451,6 +451,37 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.exportBtn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #10b981;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.exportBtn:hover:not(:disabled) {
+  background: #059669;
+}
+
+.exportBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }
 
 .backToAdminBtn {

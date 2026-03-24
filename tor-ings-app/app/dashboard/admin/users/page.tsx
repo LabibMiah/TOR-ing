@@ -28,6 +28,7 @@ export default function AdminUsersPage() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [exporting, setExporting] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [resettingId, setResettingId] = useState<string | null>(null);
   const [updatingTierId, setUpdatingTierId] = useState<string | null>(null);
@@ -95,6 +96,45 @@ export default function AdminUsersPage() {
       alert(error instanceof Error ? error.message : "Failed to load users");
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const exportToCSV = useCallback(async () => {
+    setExporting(true);
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('Please log in again');
+      }
+      
+      const response = await fetch('/api/admin/users?export=csv', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export users');
+      }
+      
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error("Error exporting users:", error);
+      alert("Failed to export users");
+    } finally {
+      setExporting(false);
     }
   }, []);
 
@@ -259,9 +299,18 @@ export default function AdminUsersPage() {
       <div className={styles.contentHeader}>
         <div className={styles.headerTop}>
           <h1 className={styles.contentHeaderTitle}>Manage Users</h1>
-          <Link href="/dashboard/admin" className={styles.backToAdminBtn}>
-            ← Back to Admin Panel
-          </Link>
+          <div className={styles.headerButtons}>
+            <button 
+              onClick={exportToCSV} 
+              disabled={exporting || users.length === 0}
+              className={styles.exportBtn}
+            >
+              {exporting ? "Exporting..." : "📥 Export CSV"}
+            </button>
+            <Link href="/dashboard/admin" className={styles.backToAdminBtn}>
+              ← Back to Admin Panel
+            </Link>
+          </div>
         </div>
         <p className={styles.contentHeaderSubtitle}>View and manage all system users</p>
       </div>
@@ -317,7 +366,7 @@ export default function AdminUsersPage() {
                   <th>Joined</th>
                   <th>Actions</th>
                 </tr>
-              </thead>
+                </thead>
               <tbody>
                 {filteredUsers.map((user: User) => {
                   const isResetting: boolean = resettingId === user.user_id;

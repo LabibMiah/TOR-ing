@@ -68,6 +68,33 @@ export async function GET(request: NextRequest) {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     })
     
+    // Check if this is a CSV export request
+    const isExport = request.nextUrl.searchParams.get('export') === 'csv'
+    
+    if (isExport) {
+      // Generate CSV
+      const csvHeaders = ['User ID', 'Name', 'Email', 'Tier', 'Account Type', 'Joined Date']
+      const csvRows = allUsers.map(user => [
+        user.user_id,
+        user.forename || '',
+        user.email,
+        user.tier,
+        user.account_type || 'Students',
+        new Date(user.created_at).toLocaleDateString('en-GB')
+      ])
+      
+      const csvContent = [csvHeaders, ...csvRows]
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n')
+      
+      return new NextResponse(csvContent, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="users_export_${new Date().toISOString().split('T')[0]}.csv"`
+        }
+      })
+    }
+    
     return NextResponse.json({ users: allUsers })
     
   } catch (error) {
