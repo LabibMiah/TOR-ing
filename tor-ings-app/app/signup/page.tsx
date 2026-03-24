@@ -4,7 +4,27 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import styles from "./signup.module.css"; // Import the CSS module
+import styles from "./signup.module.css";
+
+const accountTypes = [
+  { name: "Students", display: "Student", tier: "Tier 1" },
+  { name: "Advanced Practice", display: "Advanced Practice", tier: "Tier 1" },
+  { name: "AHP - Diagnostic Radiograthy", display: "Diagnostic Radiography", tier: "Tier 1" },
+  { name: "AHP - Occupational Therapy", display: "Occupational Therapy", tier: "Tier 1" },
+  { name: "AHP - Operating Department Practioner", display: "Operating Department Practitioner", tier: "Tier 1" },
+  { name: "AHP - Paramedics", display: "Paramedics", tier: "Tier 1" },
+  { name: "AHP - Physiotherapy", display: "Physiotherapy", tier: "Tier 1" },
+  { name: "AHP - Radiotherapy and Oncology", display: "Radiotherapy and Oncology", tier: "Tier 1" },
+  { name: "Art Therapy", display: "Art Therapy", tier: "Tier 1" },
+  { name: "Independant Pharmacy Perscribing", display: "Independent Pharmacy Prescribing", tier: "Tier 1" },
+  { name: "Midwifery", display: "Midwifery", tier: "Tier 1" },
+  { name: "Nursing - Adult", display: "Adult Nursing", tier: "Tier 1" },
+  { name: "Nursing - Childrens", display: "Children's Nursing", tier: "Tier 1" },
+  { name: "Nursing - Community Nursing", display: "Community Nursing", tier: "Tier 1" },
+  { name: "Nursing - Learning Disability's and Social Work", display: "Learning Disability & Social Work", tier: "Tier 1" },
+  { name: "Nursing - Mental Health", display: "Mental Health Nursing", tier: "Tier 1" },
+  { name: "Physician Associate", display: "Physician Associate", tier: "Tier 1" },
+];
 
 export default function Signup() {
   const supabase = createClient();
@@ -14,12 +34,26 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
+  const [selectedAccountType, setSelectedAccountType] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedTier, setSelectedTier] = useState("Tier 1");
+
+  const handleAccountTypeChange = (accountName: string) => {
+    setSelectedAccountType(accountName);
+    const account = accountTypes.find(a => a.name === accountName);
+    if (account) {
+      setSelectedTier(account.tier);
+    }
+  };
 
   const handleSignup = async () => {
-    // Validation
     if (!forename.trim()) {
       alert("Please enter your name");
+      return;
+    }
+
+    if (!selectedAccountType) {
+      alert("Please select your account type");
       return;
     }
 
@@ -35,45 +69,76 @@ export default function Signup() {
 
     setIsLoading(true);
 
-    // Sign up with Supabase Auth
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/login`,
-        data: {
-          forename: forename,  
-        }
-      },
-    });
+    try {
+      // Step 1: Create auth user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`,
+          data: {
+            forename: forename,
+            account_type: selectedAccountType,
+            tier: selectedTier
+          }
+        },
+      });
 
-    if (error) {
-      alert(error.message);
-      setIsLoading(false);
-      return;
-    }
+      if (error) throw error;
+      if (!data.user) throw new Error("No user returned");
 
-    if (data.user) {
-      const { error: updateError } = await supabase
-        .from('accounts')
-        .update({ forename: forename })
-        .eq('user_id', data.user.id);
+      console.log("Auth user created:", data.user.id);
 
-      if (updateError) {
-        console.error("Error updating forename:", updateError);
+      // Step 2: Insert into Users table FIRST (because accounts has FK to Users)
+      const { error: usersError } = await supabase
+        .from('Users')
+        .insert({
+          user_id: data.user.id,
+          Account: selectedAccountType,
+          Tier: selectedTier,
+          created_at: new Date().toISOString()
+        });
+
+      if (usersError) {
+        console.error("Users insert error:", usersError);
+        alert(`Users table error: ${usersError.message}`);
+        throw usersError;
       }
-    }
+      console.log("Users insert successful");
 
-    setIsLoading(false);
-    alert("✓ Check your email to confirm your account!");
-    
-    // Redirect to login after successful signup
-    setTimeout(() => {
-      router.push("/login");
-    }, 2000);
+      // Step 3: Insert into accounts table (now the FK constraint will be satisfied)
+      const { error: accountError } = await supabase
+        .from('accounts')
+        .insert({
+          user_id: data.user.id,
+          account: email,
+          tier: selectedTier,
+          forename: forename,
+          created_at: new Date().toISOString(),
+          account_type: selectedAccountType
+        });
+
+      if (accountError) {
+        console.error("Accounts insert error:", accountError);
+        alert(`Accounts table error: ${accountError.message}`);
+      } else {
+        console.log("Accounts insert successful");
+      }
+
+      alert("✓ Account created! Please check your email to confirm your account.");
+      
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      alert(err.message || "Failed to create account. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
       handleSignup();
@@ -124,6 +189,27 @@ export default function Signup() {
                   onKeyPress={handleKeyPress}
                   disabled={isLoading}
                 />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="accountType">Account Type *</label>
+                <select
+                  id="accountType"
+                  className={styles.select}
+                  value={selectedAccountType}
+                  onChange={(e) => handleAccountTypeChange(e.target.value)}
+                  disabled={isLoading}
+                >
+                  <option value="">Select your account type</option>
+                  {accountTypes.map((type) => (
+                    <option key={type.name} value={type.name}>
+                      {type.display}
+                    </option>
+                  ))}
+                </select>
+                <p className={styles.hint}>
+                  Your access level will be based on your account type
+                </p>
               </div>
 
               <div className={styles.formGroup}>

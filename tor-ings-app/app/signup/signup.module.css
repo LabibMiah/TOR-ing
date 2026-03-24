@@ -226,6 +226,64 @@
   text-decoration: underline;
 }
 
+.select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  font-size: 16px;
+  background: #fff;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #642040;
+  box-shadow: 0 0 0 3px rgba(100, 32, 64, 0.12);
+}
+
+.select:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.passwordMatch {
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.matchSuccess {
+  color: #10b981;
+}
+
+.matchError {
+  color: #ef4444;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: #642040;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-top: 8px;
+}
+
+.backBtn:hover {
+  color: #E31C79;
+}
+
 @media (max-width: 900px) {
   .headerInner {
     flex-direction: column;

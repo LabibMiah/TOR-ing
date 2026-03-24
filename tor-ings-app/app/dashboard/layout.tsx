@@ -17,6 +17,7 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  // Fetch user data for tier-based permissions
   const { data: account } = await supabase
     .from('accounts')
     .select('*')
@@ -25,16 +26,21 @@ export default async function DashboardLayout({
 
   const displayName = account?.forename || session.user.email?.split('@')[0] || "User";
   const tier = account?.tier || "Tier 1";
+  const isTier4 = tier === "Tier 4";
 
+  // Navigation items with tier-based visibility
   const navItems = [
     { name: "Dashboard", href: "/dashboard", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "Equipment Catalogue", href: "/dashboard/booking", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
-    { name: "My cart", href: "/dashboard/cart", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
-    { name: "My bookings", href: "/dashboard/orders", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
+    { name: "My Cart", href: "/dashboard/cart", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
+    { name: "My Bookings", href: "/dashboard/orders", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "Rooms", href: "/dashboard/rooms", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
-    { name: "Account settings", href: "/dashboard/account", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
+    { name: "Account Settings", href: "/dashboard/account", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
+    // Admin Panel - ONLY for Tier 4
+    { name: "Admin Panel", href: "/dashboard/admin", tiers: ["Tier 4"] },
   ];
 
+  // Filter navigation based on user's tier
   const filteredNavItems = navItems.filter(item => item.tiers.includes(tier));
 
   return (
@@ -42,8 +48,8 @@ export default async function DashboardLayout({
       {/* Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>Tor-ingS</h2>
-          <p className={styles.sidebarSubtitle}>Health Equipment</p>
+          <h2 className={styles.sidebarTitle}>tors</h2>
+          <p className={styles.sidebarSubtitle}>health equipment</p>
         </div>
 
         <div className={styles.userInfo}>
@@ -73,6 +79,7 @@ export default async function DashboardLayout({
         </div>
       </aside>
 
+      {/* Main Content */}
       <main className={styles.mainContent}>
         {children}
       </main>
