@@ -73,7 +73,6 @@
 .statPending {
   background: #fef3c7;
 }
-
 .statPending .statValue {
   color: #d97706;
 }
@@ -81,7 +80,6 @@
 .statConfirmed {
   background: #d1fae5;
 }
-
 .statConfirmed .statValue {
   color: #059669;
 }
@@ -89,7 +87,6 @@
 .statDeclined {
   background: #fee2e2;
 }
-
 .statDeclined .statValue {
   color: #dc2626;
 }
@@ -97,7 +94,6 @@
 .statExpired {
   background: #f3f4f6;
 }
-
 .statExpired .statValue {
   color: #6b7280;
 }
@@ -134,7 +130,6 @@
 }
 
 .searchInput:focus {
-  outline: none;
   border-color: #672146;
   box-shadow: 0 0 0 3px rgba(103, 33, 70, 0.1);
 }
@@ -144,8 +139,6 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  background: transparent;
-  padding: 0;
 }
 
 .filterContainer label {
@@ -168,12 +161,20 @@
 }
 
 .filterSelect:focus {
-  outline: none;
   border-color: #672146;
   box-shadow: 0 0 0 3px rgba(103, 33, 70, 0.1);
 }
 
-.expireBtn, .refreshBtn {
+.rightControls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.expireBtn,
+.refreshBtn {
   padding: 10px 16px;
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
@@ -184,11 +185,28 @@
   white-space: nowrap;
   flex-shrink: 0;
   box-sizing: border-box;
+  color: #374151;
 }
 
-.expireBtn:hover, .refreshBtn:hover {
-  background: #e5e7eb;
-  border-color: #d1d5db;
+.exportBtn {
+  padding: 10px 16px;
+  background: #10b981;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  color: #e5e7eb;
+}
+
+.expireBtn:hover,
+.refreshBtn:hover,
+.exportBtn:hover {
+  background: rgb(14, 161, 112);
+  border-color: #10b981;
 }
 
 /* Table */
@@ -206,7 +224,7 @@
 
 .table th {
   text-align: left;
-  padding: 12px 12px;
+  padding: 12px;
   background: #f9fafb;
   font-weight: 600;
   color: #374151;
@@ -214,7 +232,7 @@
 }
 
 .table td {
-  padding: 12px 12px;
+  padding: 12px;
   border-bottom: 1px solid #f0f0f0;
   color: #4b5563;
   vertical-align: middle;
@@ -266,6 +284,7 @@
   font-size: 12px;
 }
 
+/* Status Badges */
 .statusBadge {
   display: inline-block;
   padding: 4px 10px;
@@ -323,12 +342,12 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-
 .confirmBtn:hover:not(:disabled) {
   background: #047857;
 }
 
-.declineBtn, .cancelBtn {
+.declineBtn,
+.cancelBtn {
   padding: 6px 12px;
   background: #dc2626;
   color: white;
@@ -339,8 +358,8 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-
-.declineBtn:hover:not(:disabled), .cancelBtn:hover:not(:disabled) {
+.declineBtn:hover:not(:disabled),
+.cancelBtn:hover:not(:disabled) {
   background: #b91c1c;
 }
 
@@ -355,7 +374,6 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-
 .reopenBtn:hover:not(:disabled) {
   background: #d97706;
 }
@@ -388,7 +406,6 @@ button:disabled {
   width: 100%;
   box-sizing: border-box;
 }
-
 .footer p {
   margin: 0;
   font-size: 14px;
@@ -412,11 +429,9 @@ button:disabled {
   .searchContainer {
     width: 240px;
   }
-  
   .filterSelect {
     width: 120px;
   }
-  
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -426,50 +441,52 @@ button:disabled {
   .contentHeader {
     padding: 20px;
   }
-  
   .contentArea {
     padding: 20px;
   }
-  
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
   .controlsBar {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  
   .searchContainer {
     width: 100%;
   }
-  
   .filterContainer {
     justify-content: space-between;
     width: 100%;
   }
-  
   .filterSelect {
     flex: 1;
     width: auto;
   }
-  
-  .expireBtn, .refreshBtn {
+  .rightControls {
+    flex-direction: column;
+    align-items: stretch;
+    margin-left: 0;
+    width: 100%;
+  }
+  .expireBtn,
+  .refreshBtn,
+  .exportBtn {
     text-align: center;
     width: 100%;
   }
-  
-  .table th, .table td {
+  .table th,
+  .table td {
     padding: 8px;
   }
-  
   .actions {
     flex-direction: column;
     gap: 6px;
   }
-  
-  .confirmBtn, .declineBtn, .cancelBtn, .reopenBtn {
+  .confirmBtn,
+  .declineBtn,
+  .cancelBtn,
+  .reopenBtn {
     width: 100%;
     text-align: center;
   }
@@ -480,19 +497,15 @@ button:disabled {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
   .statCard {
     padding: 12px;
   }
-  
   .statValue {
     font-size: 24px;
   }
-  
   .contentHeaderTitle {
     font-size: 24px;
   }
-  
   .shell {
     padding: 16px;
   }
@@ -502,16 +515,14 @@ button:disabled {
   .contentArea {
     padding: 12px;
   }
-  
-  .table th, .table td {
+  .table th,
+  .table td {
     padding: 6px;
     font-size: 12px;
   }
-  
   .bookingId {
     font-size: 11px;
   }
-  
   .statusBadge {
     font-size: 10px;
     padding: 2px 6px;

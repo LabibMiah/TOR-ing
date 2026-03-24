@@ -305,7 +305,7 @@ export default function AdminUsersPage() {
               disabled={exporting || users.length === 0}
               className={styles.exportBtn}
             >
-              {exporting ? "Exporting..." : "📥 Export CSV"}
+              {exporting ? "Exporting..." : "Export CSV"}
             </button>
             <Link href="/dashboard/admin" className={styles.backToAdminBtn}>
               ← Back to Admin Panel
