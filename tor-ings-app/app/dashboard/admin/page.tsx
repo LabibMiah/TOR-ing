@@ -142,16 +142,7 @@ export default async function AdminPage() {
           <h2 className={styles.sectionTitle}>Quick Actions</h2>
           <div className={styles.quickActions}>
             <Link href="/dashboard/admin/users" className={styles.actionBtn}>
-              <span>👥</span> Manage Users
-            </Link>
-            <Link href="/dashboard/admin/equipment" className={styles.actionBtn}>
-              <span></span> Manage Equipment
-            </Link>
-            <Link href="/dashboard/admin/bookings" className={styles.actionBtn}>
-              <span></span> Manage Bookings
-            </Link>
-            <Link href="/dashboard/admin/rooms" className={styles.actionBtn}>
-              <span></span> Manage Rooms
+              <span></span> Manage Users
             </Link>
           </div>
         </div>
@@ -195,7 +186,7 @@ export default async function AdminPage() {
         {/* Low Stock Alerts */}
         {lowStockItems.length > 0 && (
           <div className={styles.sectionCard}>
-            <h2 className={styles.sectionTitle}>⚠️ Low Stock Alerts</h2>
+            <h2 className={styles.sectionTitle}> Low Stock Alerts</h2>
             <div className={styles.tableContainer}>
               <table className={styles.table}>
                 <thead>

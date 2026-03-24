@@ -36,6 +36,8 @@ export default async function DashboardLayout({
     { name: "My Bookings", href: "/dashboard/orders", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "Rooms", href: "/dashboard/rooms", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "Account Settings", href: "/dashboard/account", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
+    //Tier 2 features and above
+    { name: "Schedule", href: "/dashboard/schedule", tiers: ["Tier 2", "Tier 3", "Tier 4"] },
     // Admin Panel - ONLY for Tier 4
     { name: "Admin Panel", href: "/dashboard/admin", tiers: ["Tier 4"] },
   ];
@@ -48,8 +50,8 @@ export default async function DashboardLayout({
       {/* Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>tors</h2>
-          <p className={styles.sidebarSubtitle}>health equipment</p>
+          <h2 className={styles.sidebarTitle}>TOR-ingS</h2>
+          <p className={styles.sidebarSubtitle}>Health Equipment</p>
         </div>
 
         <div className={styles.userInfo}>
