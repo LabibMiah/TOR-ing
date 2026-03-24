@@ -1,7 +1,7 @@
 # TOR-ing
 This is the final group repository, this will have our documentation, application and other files that are needed for this project
 
-NextJS Video: https://www.youtube.com/watch?v=cbRhSqWNgeg&t=568s
+If you need to use this application you will need the env.local file, you need to access the folder called "ENV" drag this file into the tor-ings-app directory so it should look like TOR-ING/tor-ings-app/.env.local, this file has all the keys needed to run this application
 
 Please run: npm i
 to install all dependencies needed for this project to work
