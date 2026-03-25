@@ -40,6 +40,7 @@ export default async function DashboardLayout({
     { name: "Schedule", href: "/dashboard/schedule", tiers: ["Tier 2", "Tier 3", "Tier 4"] },
     // Admin Panel - ONLY for Tier 4
     { name: "Admin Panel", href: "/dashboard/admin", tiers: ["Tier 4"] },
+    { name: "New Page", href: "/dashboard/admin/new-page", tiers: ["Tier 4"] },
   ];
 
   // Filter navigation based on user's tier
