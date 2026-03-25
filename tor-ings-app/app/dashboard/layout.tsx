@@ -33,7 +33,8 @@ export default async function DashboardLayout({
     { name: "My bookings", href: "/dashboard/orders", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "Rooms", href: "/dashboard/rooms", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "Account settings", href: "/dashboard/account", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
-    { name: "Restock", href: "/dashboard/restock", tiers: ["Tier 4"] },
+    { name: "Restock", href: "/dashboard/restock", tiers: ["Tier 2", "Tier 3", "Tier 4"] },
+    { name: "Add Stock", href: "/dashboard/newstock", tiers: ["Tier 2", "Tier 3", "Tier 4"] },
   ];
 
   const filteredNavItems = navItems.filter(item => item.tiers.includes(tier));
