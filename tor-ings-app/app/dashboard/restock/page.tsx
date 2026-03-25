@@ -192,9 +192,9 @@ export default function RestockPage() {
     const newvalue = value + current;
     const{data: Equipment} = await supabase
       .from('Equipment')
-      .update({ Quantity: 1 })
+      .update({ Quantity: newvalue })
       .eq('Equipment_ID', id)
-      .select('equipment_id, Quantity');
+      .select('Equipment_ID, Quantity');
     setLoading(false);
   };
 
