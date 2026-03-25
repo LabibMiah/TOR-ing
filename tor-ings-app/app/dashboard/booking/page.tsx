@@ -23,6 +23,18 @@ type CartItem = {
   size: string | null;
   category: string | null;
 };
+const cleanText = (text?: string | null): string => {
+  if (!text) return "";
+
+  return text
+    .replace(/([A-Za-z])�([A-Za-z])/g, "$1'$2")
+    .replace(/\s�\s/g, " - ")
+    .replace(/�/g, "")
+    .replaceAll("–", "-")
+    .replaceAll("—", "-")
+    .replace(/\s+/g, " ")
+    .trim();
+};
 
 export default function EquipmentPage() {
   const supabase = createClient();
@@ -34,7 +46,7 @@ export default function EquipmentPage() {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage: number = 20;
+  const itemsPerPage: number = 21;
   
   // Filter state
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -354,15 +366,15 @@ export default function EquipmentPage() {
               return (
                 <div key={item.Equipment_ID} className={styles.equipmentCard}>
                   <div className={styles.cardHeader}>
-                    <h4 className={styles.itemName}>{item.Name}</h4>
+                    <h4 className={styles.itemName}>{cleanText(item.Name)}</h4>
                     {item.Type && (
-                      <span className={styles.itemType}>{item.Type}</span>
+                      <span className={styles.itemType}>{cleanText(item.Type)}</span>
                     )}
                   </div>
                   
                   <div className={styles.cardDetails}>
                     {item.Size && (
-                      <p><strong>Size:</strong> {item.Size}</p>
+                      <p><strong>Size:</strong> {cleanText(item.Size)}</p>
                     )}
                     <p className={styles.quantity}>
                       <strong>Available:</strong> 
