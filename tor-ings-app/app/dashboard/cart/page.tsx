@@ -16,9 +16,25 @@ type Equipment = {
   Equipment_Catagory: string | null;
 };
 
+// Add TrolleyItem type
+type TrolleyItem = {
+  trolleyitem_id: number;
+  contents: string;
+  weight: string | null;
+  colour: string | null;
+  name: string;
+};
+
+// Update CartItem type
 type CartItem = {
   id: number;
   quantity: number;
+  name: string;
+  type: string | null;
+  size: string | null;
+  category: string | null;
+  isTrolley?: boolean;
+  trolleyItems?: TrolleyItem[];
   details?: Equipment;
 };
 
@@ -68,44 +84,55 @@ export default function CartPage() {
         console.log("8. Parsed cart items:", cart);
         
         if (cart.length > 0) {
-          console.log("9. Fetching equipment details for IDs:", cart.map(item => item.id));
+          // Separate equipment items from trolley items
+          const equipmentIds = cart.filter(item => !item.isTrolley).map(item => item.id);
           
-          const { data, error } = await supabase
-            .from('Equipment')
-            .select('*')
-            .in('Equipment_ID', cart.map(item => item.id));
-          
-          console.log("10. Equipment data from DB:", data);
-          console.log("10a. Equipment error:", error);
-          
-          if (data) {
-            const itemsWithDetails: CartItem[] = cart.map(cartItem => {
-              const details = (data as Equipment[]).find(d => d.Equipment_ID === cartItem.id);
-              
-              // CRITICAL FIX: Ensure quantity is treated as a number
-              const dbQuantity = details?.Quantity;
-              const numericQuantity = dbQuantity !== null && dbQuantity !== undefined 
-                ? Number(dbQuantity) 
-                : 0;
-              
-              console.log(`11. Item ${cartItem.id}:`, {
-                cartQuantity: cartItem.quantity,
-                dbRawValue: dbQuantity,
-                dbQuantity: numericQuantity,
-                type: typeof dbQuantity,
-                name: details?.Name
+          if (equipmentIds.length > 0) {
+            console.log("9. Fetching equipment details for IDs:", equipmentIds);
+            
+            const { data, error } = await supabase
+              .from('Equipment')
+              .select('*')
+              .in('Equipment_ID', equipmentIds);
+            
+            console.log("10. Equipment data from DB:", data);
+            console.log("10a. Equipment error:", error);
+            
+            if (data) {
+              const itemsWithDetails: CartItem[] = cart.map(cartItem => {
+                if (cartItem.isTrolley) {
+                  // Trolley items don't need equipment details
+                  return cartItem as CartItem;
+                }
+                const details = (data as Equipment[]).find(d => d.Equipment_ID === cartItem.id);
+                
+                const dbQuantity = details?.Quantity;
+                const numericQuantity = dbQuantity !== null && dbQuantity !== undefined 
+                  ? Number(dbQuantity) 
+                  : 0;
+                
+                console.log(`11. Item ${cartItem.id}:`, {
+                  cartQuantity: cartItem.quantity,
+                  dbRawValue: dbQuantity,
+                  dbQuantity: numericQuantity,
+                  type: typeof dbQuantity,
+                  name: details?.Name
+                });
+                
+                return {
+                  ...cartItem,
+                  details: details ? {
+                    ...details,
+                    Quantity: numericQuantity
+                  } : undefined
+                };
               });
-              
-              return {
-                ...cartItem,
-                details: details ? {
-                  ...details,
-                  Quantity: numericQuantity // Ensure it's a number
-                } : undefined
-              };
-            });
-            console.log("12. Final cart items with details:", itemsWithDetails);
-            setCartItems(itemsWithDetails);
+              console.log("12. Final cart items with details:", itemsWithDetails);
+              setCartItems(itemsWithDetails);
+            }
+          } else {
+            // Only trolleys in cart
+            setCartItems(cart as CartItem[]);
           }
         } else {
           console.log("9. Cart is empty array");
@@ -125,7 +152,21 @@ export default function CartPage() {
 
   const updateQuantity = (id: number, newQty: number) => {
     const item = cartItems.find(item => item.id === id);
-    // Ensure availableQty is a number
+    
+    // For trolleys, we need to check if they have quantity limits
+    if (item?.isTrolley) {
+      // Trolleys might have a max quantity - you can add logic here
+      const updated = cartItems.map(item => 
+        item.id === id ? { ...item, quantity: newQty } : item
+      );
+      setCartItems(updated);
+      
+      const toSave = updated.map(({ details, ...rest }) => rest);
+      localStorage.setItem('cart', JSON.stringify(toSave));
+      return;
+    }
+    
+    // For equipment, check stock
     const availableQty = Number(item?.details?.Quantity) || 0;
     
     console.log(`Updating item ${id}:`, {
@@ -134,7 +175,6 @@ export default function CartPage() {
       currentItem: item
     });
     
-    // Don't allow quantity to exceed available stock
     if (newQty > availableQty) {
       alert(`Only ${availableQty} items available in stock`);
       return;
@@ -205,16 +245,50 @@ export default function CartPage() {
               <div className={styles.cartGrid}>
                 <div className={styles.cartItems}>
                   {cartItems.map((item) => {
-                    // CRITICAL FIX: Ensure quantity is treated as a number
+                    const isTrolley = item.isTrolley;
+                    
+                    if (isTrolley) {
+                      // Render trolley item
+                      return (
+                        <div key={item.id} className={styles.cartItem}>
+                          <div className={styles.itemInfo}>
+                            <h3>{item.name}</h3>
+                            <p className={styles.itemDetails}>
+                              Type: Trolley | Category: {item.category || 'Trolley'}
+                            </p>
+                            {item.trolleyItems && (
+                              <p className={styles.trolleyInfo}>
+                                Contains {item.trolleyItems.length} items
+                              </p>
+                            )}
+                          </div>
+
+                          <div className={styles.itemActions}>
+                            <div className={styles.quantityControl}>
+                              <label>Qty:</label>
+                              <select 
+                                value={item.quantity}
+                                onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                              >
+                                {[1,2,3,4,5].map(num => (
+                                  <option key={num} value={num}>{num}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <button 
+                              onClick={() => removeItem(item.id)}
+                              className={styles.removeBtn}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    // Render equipment item
                     const availableQty = Number(item.details?.Quantity) || 0;
-                    
-                    console.log(`Rendering item ${item.id}:`, {
-                      name: item.details?.Name,
-                      availableQty,
-                      currentCartQty: item.quantity
-                    });
-                    
-                    // Generate options based on ACTUAL available quantity
                     const maxSelectable = Math.min(availableQty, 5);
                     const options = [];
                     
@@ -238,7 +312,7 @@ export default function CartPage() {
                           </p>
                           {availableQty < item.quantity && (
                             <p className={styles.warning}>
-                              ! You have {item.quantity} in cart but only {availableQty} available
+                              ⚠️ You have {item.quantity} in cart but only {availableQty} available
                             </p>
                           )}
                         </div>

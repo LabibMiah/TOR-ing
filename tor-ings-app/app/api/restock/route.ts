@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     const tierNumber = parseInt(account.tier.split(" ")[1]);
     let query = supabaseAdmin.from("restock_requests").select("*").order("created_at", { ascending: false });
 
-    // Tier 2 can only see their own requests
     if (tierNumber === 2) {
       query = query.eq("requested_by", user.id);
     }
@@ -88,22 +87,23 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { equipment_id, equipment_name, requested_quantity, reason } = body;
+    const { item_type, item_id, item_name, requested_quantity, reason } = body;
 
-    if (!equipment_id || !equipment_name || !requested_quantity) {
+    if (!item_type || !item_id || !item_name || !requested_quantity) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Ensure status is exactly 'pending' (lowercase)
-    const insertData = {
-      equipment_id,
-      equipment_name,
-      requested_quantity,
-      reason: reason || null,
-      requested_by: user.id,
-      requested_by_name: account.forename || user.email?.split("@")[0] || "User",
-      status: "pending", // Must be exactly 'pending'
-    };
+
+const insertData = {
+  item_type,           // 'equipment' or 'trolley'
+  item_id,             // equipment_id or trolley_id
+  item_name,           // equipment name or trolley name
+  requested_quantity,
+  reason: reason || null,
+  requested_by: user.id,
+  requested_by_name: account.forename || user.email?.split("@")[0] || "User",
+  status: "pending",
+};
 
     console.log("Inserting restock request:", insertData);
 
@@ -161,10 +161,20 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Ensure status is exactly one of the allowed values
     const allowedStatuses = ["pending", "confirmed", "declined"];
     if (!allowedStatuses.includes(status)) {
-      return NextResponse.json({ error: `Invalid status: ${status}. Must be one of: ${allowedStatuses.join(", ")}` }, { status: 400 });
+      return NextResponse.json({ error: `Invalid status: ${status}` }, { status: 400 });
+    }
+
+    // First, get the request to know what item type it is
+    const { data: existingRequest } = await supabaseAdmin
+      .from("restock_requests")
+      .select("*")
+      .eq("request_id", request_id)
+      .single();
+
+    if (!existingRequest) {
+      return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
     const updateData = {
@@ -187,6 +197,35 @@ export async function PUT(request: NextRequest) {
     if (error) {
       console.error("Database error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // If confirmed, update the actual item quantity
+    if (status === "confirmed") {
+      if (existingRequest.item_type === "equipment") {
+        // Update equipment quantity
+        const { error: updateError } = await supabaseAdmin
+          .from("Equipment")
+          .update({ 
+            Quantity: supabaseAdmin.rpc('increment', { row_id: existingRequest.item_id, amount: existingRequest.requested_quantity })
+          })
+          .eq("Equipment_ID", existingRequest.item_id);
+        
+        if (updateError) {
+          console.error("Error updating equipment:", updateError);
+        }
+      } else if (existingRequest.item_type === "trolley") {
+        // Update trolley quantity
+        const { error: updateError } = await supabaseAdmin
+          .from("Trolleys")
+          .update({ 
+            quantity: supabaseAdmin.rpc('increment', { row_id: existingRequest.item_id, amount: existingRequest.requested_quantity })
+          })
+          .eq("trolley_id", existingRequest.item_id);
+        
+        if (updateError) {
+          console.error("Error updating trolley:", updateError);
+        }
+      }
     }
 
     return NextResponse.json({ request: data });

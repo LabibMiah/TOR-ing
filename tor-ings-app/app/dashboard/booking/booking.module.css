@@ -439,6 +439,148 @@
   font-size: 14px;
 }
 
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.tabBtn, .activeTab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #374151;
+}
+
+.tabBtn:hover {
+  background: #f3f4f6;
+}
+
+.activeTab {
+  background: #672146;
+  color: white;
+  border-color: #672146;
+}
+
+.viewItemsBtn {
+  margin-top: 8px;
+  padding: 4px 10px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.viewItemsBtn:hover {
+  background: #e5e7eb;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.modalClose:hover {
+  color: #374151;
+}
+
+.modalBody {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trolleyItem {
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+.itemContent {
+  font-weight: 500;
+  color: #1f2937;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.itemColour, .itemWeight {
+  font-size: 12px;
+  color: #6b7280;
+  display: inline-block;
+  margin-right: 12px;
+}
+
+.noItems {
+  text-align: center;
+  color: #9ca3af;
+  padding: 20px;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .contentHeader {
@@ -488,10 +630,8 @@
     height: 30px;
     font-size: 12px;
   }
-}
 
-@media (max-width: 768px) {
-  .dualFilters {
+    .dualFilters {
     flex-direction: column;
     gap: 12px;
   }
@@ -510,3 +650,4 @@
     width: 100%;
   }
 }
+
