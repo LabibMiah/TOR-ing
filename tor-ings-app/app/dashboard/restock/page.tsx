@@ -31,7 +31,7 @@ type TrolleyItem = {
 
 type RestockRequest = {
   request_id: string;
-  item_type: "equipment" | "trolley";
+  item_type: "equipment" | "trolley" | "new_item";
   item_id: number;
   item_name: string;
   requested_quantity: number;
@@ -44,7 +44,59 @@ type RestockRequest = {
   reviewed_by_name: string | null;
   reviewed_at: string | null;
   notes: string | null;
+  new_item_details?: {
+    type?: string;
+    size?: string;
+    category?: string;
+    description?: string;
+  };
 };
+
+// Equipment categories and types for dropdowns
+const equipmentCategories = [
+  "Manikins",
+  "Airway & Respiratory Care",
+  "Monitoring & Diagnostics",
+  "Imaging & Radiotherapy",
+  "Theatre & Perioperative (ODP)",
+  "Emergency & Pre-hospital (Paramedic)",
+  "Wound Care",
+  "Patient Care",
+  "Patient Manouevering",
+  "MSK",
+  "Community & Domestic Skills, Assistive Technology & Daily Living",
+  "Dietetics, Nutrition & Anthropometry",
+  "Mental Health, Communication & Simulation",
+  "Creative Therapy",
+  "Medication Management & Pharmacology",
+  "Furniture & Facilities",
+  "IT/AV & Simulation Control",
+  "Midwifery",
+  "Infection Control and Prevention (IPC)",
+  "Anatomy"
+];
+
+const equipmentTypes = [
+  "Electronic Manikin",
+  "Lifelike Manikin",
+  "Task Trainer",
+  "Consumables",
+  "Medical Equipment",
+  "Equipment",
+  "RoboPet",
+  "Drug",
+  "Misc",
+  "Fabrics",
+  "Creative Studios",
+  "Basic Media",
+  "Cleaning",
+  "Paints",
+  "Modelling",
+  "Adhesives",
+  "Tools"
+];
+
+const equipmentSizes = ["Adult", "Child", "Baby", "Multiple", "S", "M", "L", "XL"];
 
 export default function RestockPage() {
   const supabase = createClient();
@@ -56,7 +108,8 @@ export default function RestockPage() {
   const [userTier, setUserTier] = useState("");
   const [userName, setUserName] = useState("");
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const [selectedType, setSelectedType] = useState<"equipment" | "trolley">("equipment");
+  const [showNewItemModal, setShowNewItemModal] = useState(false);
+  const [selectedType, setSelectedType] = useState<"equipment" | "trolley" | "new_item">("equipment");
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [selectedTrolley, setSelectedTrolley] = useState<Trolley | null>(null);
   const [requestQuantity, setRequestQuantity] = useState(1);
@@ -71,6 +124,14 @@ export default function RestockPage() {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<RestockRequest | null>(null);
   const [reviewAction, setReviewAction] = useState<"confirm" | "decline">("confirm");
+  
+  // New item form state
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("");
+  const [newItemType, setNewItemType] = useState("");
+  const [newItemSize, setNewItemSize] = useState("");
+  const [newItemQuantity, setNewItemQuantity] = useState(1);
+  const [newItemReason, setNewItemReason] = useState("");
 
   useEffect(() => {
     async function checkAccessAndLoad() {
@@ -182,6 +243,10 @@ export default function RestockPage() {
       alert("Please select a trolley");
       return;
     }
+    if (selectedType === "new_item" && !newItemName.trim()) {
+      alert("Please enter the item name");
+      return;
+    }
     if (requestQuantity < 1) {
       alert("Please enter a valid quantity");
       return;
@@ -192,19 +257,36 @@ export default function RestockPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
+      const body: any = {
+        item_type: selectedType,
+        requested_quantity: requestQuantity,
+        reason: requestReason,
+      };
+      
+      if (selectedType === "equipment" && selectedEquipment) {
+        body.item_id = selectedEquipment.Equipment_ID;
+        body.item_name = selectedEquipment.Name;
+      } else if (selectedType === "trolley" && selectedTrolley) {
+        body.item_id = selectedTrolley.trolley_id;
+        body.item_name = selectedTrolley.name;
+      } else if (selectedType === "new_item") {
+        body.item_id = 0;
+        body.item_name = newItemName;
+        body.new_item_details = {
+          type: newItemType,
+          size: newItemSize,
+          category: newItemCategory,
+          description: newItemReason,
+        };
+      }
+      
       const response = await fetch("/api/restock", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({
-          item_type: selectedType,
-          item_id: selectedType === "equipment" ? selectedEquipment!.Equipment_ID : selectedTrolley!.trolley_id,
-          item_name: selectedType === "equipment" ? selectedEquipment!.Name : selectedTrolley!.name,
-          requested_quantity: requestQuantity,
-          reason: requestReason,
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -215,12 +297,19 @@ export default function RestockPage() {
 
       alert("Restock request submitted successfully");
       setShowRequestModal(false);
+      setShowNewItemModal(false);
       setSelectedEquipment(null);
       setSelectedTrolley(null);
       setRequestQuantity(1);
       setRequestReason("");
       setEquipmentSearchTerm("");
       setTrolleySearchTerm("");
+      setNewItemName("");
+      setNewItemCategory("");
+      setNewItemType("");
+      setNewItemSize("");
+      setNewItemQuantity(1);
+      setNewItemReason("");
       await loadRequests();
     } catch (error) {
       console.error("Error submitting request:", error);
@@ -279,6 +368,11 @@ export default function RestockPage() {
     setReviewAction(action);
     setReviewNotes("");
     setShowReviewModal(true);
+  };
+
+  const openNewItemModal = () => {
+    setSelectedType("new_item");
+    setShowNewItemModal(true);
   };
 
   const filteredRequests = useMemo(() => {
@@ -424,7 +518,9 @@ export default function RestockPage() {
                 {filteredRequests.map((request) => (
                   <tr key={request.request_id}>
                     <td className={styles.itemType}>
-                      {request.item_type === "equipment" ? " Equipment" : " Trolley"}
+                      {request.item_type === "equipment" && " Equipment"}
+                      {request.item_type === "trolley" && " Trolley"}
+                      {request.item_type === "new_item" && " New Item"}
                     </td>
                     <td className={styles.itemName}>{request.item_name}</td>
                     <td className={styles.requestedBy}>{request.requested_by_name}</td>
@@ -445,7 +541,7 @@ export default function RestockPage() {
                             className={styles.confirmBtn}
                           >
                             Confirm
-          </button>
+                          </button>
                           <button
                             onClick={() => openReviewModal(request, "decline")}
                             disabled={updatingId === request.request_id}
@@ -508,6 +604,13 @@ export default function RestockPage() {
                     className={`${styles.typeBtn} ${selectedType === "trolley" ? styles.activeType : ""}`}
                   >
                      Trolley
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openNewItemModal}
+                    className={styles.typeBtn}
+                  >
+                    Request New Item
                   </button>
                 </div>
               </div>
@@ -659,6 +762,122 @@ export default function RestockPage() {
         </div>
       )}
 
+      {/* New Item Request Modal */}
+      {showNewItemModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowNewItemModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Request New Equipment</h2>
+              <button className={styles.modalClose} onClick={() => setShowNewItemModal(false)}>
+                ×
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.formGroup}>
+                <label>Item Name *</label>
+                <input
+                  type="text"
+                  placeholder="Enter the equipment name"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  className={styles.input}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Category</label>
+                <select
+                  value={newItemCategory}
+                  onChange={(e) => setNewItemCategory(e.target.value)}
+                  className={styles.select}
+                >
+                  <option value="">Select category</option>
+                  {equipmentCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Type</label>
+                <select
+                  value={newItemType}
+                  onChange={(e) => setNewItemType(e.target.value)}
+                  className={styles.select}
+                >
+                  <option value="">Select type</option>
+                  {equipmentTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Size</label>
+                <select
+                  value={newItemSize}
+                  onChange={(e) => setNewItemSize(e.target.value)}
+                  className={styles.select}
+                >
+                  <option value="">Select size</option>
+                  {equipmentSizes.map(size => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Quantity Needed *</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="1000"
+                  value={newItemQuantity}
+                  onChange={(e) => setNewItemQuantity(parseInt(e.target.value) || 1)}
+                  className={styles.input}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Reason for Request *</label>
+                <textarea
+                  value={newItemReason}
+                  onChange={(e) => setNewItemReason(e.target.value)}
+                  placeholder="Why is this equipment needed? What will it be used for?"
+                  className={styles.textarea}
+                  rows={4}
+                />
+              </div>
+
+              <div className={styles.infoBox}>
+                <p>💡 Tip: Be as specific as possible about the equipment you need. Include model numbers, special requirements, or links to product pages if available.</p>
+              </div>
+            </div>
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => setShowNewItemModal(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.submitBtn}
+                onClick={() => {
+                  setSelectedType("new_item");
+                  setRequestQuantity(newItemQuantity);
+                  setRequestReason(newItemReason);
+                  submitRequest();
+                }}
+                disabled={!newItemName.trim() || newItemQuantity < 1 || submitting}
+              >
+                {submitting ? "Submitting..." : "Submit Request"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Review Request Modal */}
       {showReviewModal && selectedRequest && (
         <div className={styles.modalOverlay} onClick={() => setShowReviewModal(false)}>
@@ -670,7 +889,7 @@ export default function RestockPage() {
               </button>
             </div>
             <div className={styles.modalBody}>
-              <p><strong>Type:</strong> {selectedRequest.item_type === "equipment" ? "Equipment" : "Trolley"}</p>
+              <p><strong>Type:</strong> {selectedRequest.item_type === "equipment" ? "Equipment" : selectedRequest.item_type === "trolley" ? "Trolley" : "New Item"}</p>
               <p><strong>Item:</strong> {selectedRequest.item_name}</p>
               <p><strong>Requested By:</strong> {selectedRequest.requested_by_name}</p>
               <p><strong>Quantity:</strong> {selectedRequest.requested_quantity}</p>

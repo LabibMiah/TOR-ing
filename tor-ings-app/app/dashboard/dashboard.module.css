@@ -414,6 +414,82 @@
   font-size: 14px;
 }
 
+/* Order Again Grid */
+.orderAgainGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.orderAgainCard {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: block;
+}
+
+.orderAgainCard:hover {
+  transform: translateY(-2px);
+  border-color: #672146;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.orderAgainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.orderAgainName {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.orderAgainDetails {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.orderAgainType, .orderAgainSize {
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.orderAgainFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.orderAgainQuantity {
+  font-size: 12px;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.orderAgainLink {
+  font-size: 12px;
+  color: #672146;
+  font-weight: 500;
+}
+
+.orderAgainLink:hover {
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .recommendationsGrid {

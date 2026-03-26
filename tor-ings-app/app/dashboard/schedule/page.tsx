@@ -270,52 +270,67 @@ export default function SchedulePage() {
   };
 
   const saveBookingEdit = async () => {
-    if (!editingBooking) return;
+  if (!editingBooking) return;
+  
+  if (editDateError) {
+    alert("Please fix the date issue before saving");
+    return;
+  }
+  
+  if (!editStartDate || !editEndDate) {
+    alert("Please select both start and end dates");
+    return;
+  }
+
+  setSavingEdit(true);
+
+  try {
+    // Find the selected room with all its details
+    const selectedRoom = rooms.find(r => r.Room_ID === editRoomId);
     
-    if (editDateError) {
-      alert("Please fix the date issue before saving");
+    if (!selectedRoom) {
+      alert("Selected room not found");
       return;
     }
     
-    if (!editStartDate || !editEndDate) {
-      alert("Please select both start and end dates");
-      return;
-    }
+    // Format the full room name with building and type
+    const letter = selectedRoom.Letter || '';
+    const roomNumber = selectedRoom.Room || '';
+    const building = selectedRoom.Building || '';
+    const roomCode = letter && roomNumber ? `${letter}${roomNumber}` : roomNumber || 'Unknown';
+    const fullRoomName = `${roomCode} - ${building}${selectedRoom.Type ? ` (${selectedRoom.Type})` : ''}`;
+    
+    // If the booking was confirmed, set it back to pending after edit
+    const newStatus = editingBooking.status === "confirmed" ? "pending" : editingBooking.status;
+    
+    const { error } = await supabase
+      .from("bookings")
+      .update({
+        room_id: editRoomId,
+        room_name: fullRoomName,
+        start_date: editStartDate,
+        end_date: editEndDate,
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("booking_id", editingBooking.booking_id);
 
-    setSavingEdit(true);
+    if (error) throw error;
 
-    try {
-      // If the booking was confirmed, set it back to pending after edit
-      const newStatus = editingBooking.status === "confirmed" ? "pending" : editingBooking.status;
-      
-      const { error } = await supabase
-        .from("bookings")
-        .update({
-          room_id: editRoomId,
-          room_name: rooms.find(r => r.Room_ID === editRoomId)?.Room || "",
-          start_date: editStartDate,
-          end_date: editEndDate,
-          status: newStatus,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("booking_id", editingBooking.booking_id);
-
-      if (error) throw error;
-
-      const message = editingBooking.status === "confirmed" 
-        ? "Booking updated and set back to pending for re-confirmation"
-        : "Booking updated successfully";
-      
-      alert(message);
-      await loadSchedule();
-      closeEditModal();
-    } catch (error) {
-      console.error("Error updating booking:", error);
-      alert("Failed to update booking");
-    } finally {
-      setSavingEdit(false);
-    }
-  };
+    const message = editingBooking.status === "confirmed" 
+      ? "Booking updated and set back to pending for re-confirmation"
+      : "Booking updated successfully";
+    
+    alert(message);
+    await loadSchedule();
+    closeEditModal();
+  } catch (error) {
+    console.error("Error updating booking:", error);
+    alert("Failed to update booking");
+  } finally {
+    setSavingEdit(false);
+  }
+};
 
   const formatRoomDisplay = (room: Room) => {
     const letter = room.Letter || '';
