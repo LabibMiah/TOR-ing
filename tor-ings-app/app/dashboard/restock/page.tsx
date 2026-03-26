@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -14,10 +14,26 @@ type Equipment = {
   Equipment_Catagory: string | null;
 };
 
+type Trolley = {
+  trolley_id: number;
+  name: string;
+  quantity: number;
+  items?: TrolleyItem[];
+};
+
+type TrolleyItem = {
+  trolleyitem_id: number;
+  contents: string;
+  weight: string | null;
+  colour: string | null;
+  name: string;
+};
+
 type RestockRequest = {
   request_id: string;
-  equipment_id: number;
-  equipment_name: string;
+  item_type: "equipment" | "trolley";
+  item_id: number;
+  item_name: string;
   requested_quantity: number;
   reason: string | null;
   status: "pending" | "confirmed" | "declined";
@@ -34,18 +50,22 @@ export default function RestockPage() {
   const supabase = createClient();
   const router = useRouter();
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [trolleys, setTrolleys] = useState<Trolley[]>([]);
   const [requests, setRequests] = useState<RestockRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [userTier, setUserTier] = useState("");
   const [userName, setUserName] = useState("");
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [selectedType, setSelectedType] = useState<"equipment" | "trolley">("equipment");
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
+  const [selectedTrolley, setSelectedTrolley] = useState<Trolley | null>(null);
   const [requestQuantity, setRequestQuantity] = useState(1);
   const [requestReason, setRequestReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [equipmentSearchTerm, setEquipmentSearchTerm] = useState("");
+  const [trolleySearchTerm, setTrolleySearchTerm] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [reviewNotes, setReviewNotes] = useState("");
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -81,6 +101,7 @@ export default function RestockPage() {
       }
 
       await loadEquipment();
+      await loadTrolleys();
       await loadRequests();
       setLoading(false);
     }
@@ -95,6 +116,26 @@ export default function RestockPage() {
     
     if (data) {
       setEquipment(data);
+    }
+  };
+
+  const loadTrolleys = async () => {
+    const { data } = await supabase
+      .from("Trolleys")
+      .select("*")
+      .order("name", { ascending: true });
+    
+    if (data) {
+      const trolleysWithItems = await Promise.all(
+        data.map(async (trolley) => {
+          const { data: items } = await supabase
+            .from("Trolley_Items")
+            .select("*")
+            .eq("trolley_id", trolley.trolley_id);
+          return { ...trolley, items: items || [] };
+        })
+      );
+      setTrolleys(trolleysWithItems);
     }
   };
 
@@ -114,7 +155,6 @@ export default function RestockPage() {
     }
   };
 
-  // Filter equipment for dropdown
   const filteredEquipment = useMemo(() => {
     if (!equipmentSearchTerm) return equipment;
     const term = equipmentSearchTerm.toLowerCase();
@@ -125,8 +165,23 @@ export default function RestockPage() {
     );
   }, [equipment, equipmentSearchTerm]);
 
+  const filteredTrolleys = useMemo(() => {
+    if (!trolleySearchTerm) return trolleys;
+    const term = trolleySearchTerm.toLowerCase();
+    return trolleys.filter(t => 
+      t.name.toLowerCase().includes(term)
+    );
+  }, [trolleys, trolleySearchTerm]);
+
   const submitRequest = async () => {
-    if (!selectedEquipment) return;
+    if (selectedType === "equipment" && !selectedEquipment) {
+      alert("Please select equipment");
+      return;
+    }
+    if (selectedType === "trolley" && !selectedTrolley) {
+      alert("Please select a trolley");
+      return;
+    }
     if (requestQuantity < 1) {
       alert("Please enter a valid quantity");
       return;
@@ -144,8 +199,9 @@ export default function RestockPage() {
           Authorization: `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
-          equipment_id: selectedEquipment.Equipment_ID,
-          equipment_name: selectedEquipment.Name,
+          item_type: selectedType,
+          item_id: selectedType === "equipment" ? selectedEquipment!.Equipment_ID : selectedTrolley!.trolley_id,
+          item_name: selectedType === "equipment" ? selectedEquipment!.Name : selectedTrolley!.name,
           requested_quantity: requestQuantity,
           reason: requestReason,
         }),
@@ -160,9 +216,11 @@ export default function RestockPage() {
       alert("Restock request submitted successfully");
       setShowRequestModal(false);
       setSelectedEquipment(null);
+      setSelectedTrolley(null);
       setRequestQuantity(1);
       setRequestReason("");
       setEquipmentSearchTerm("");
+      setTrolleySearchTerm("");
       await loadRequests();
     } catch (error) {
       console.error("Error submitting request:", error);
@@ -172,56 +230,56 @@ export default function RestockPage() {
     }
   };
 
-const reviewRequest = async () => {
-  if (!selectedRequest) return;
+  const reviewRequest = async () => {
+    if (!selectedRequest) return;
 
-  setUpdatingId(selectedRequest.request_id);
+    setUpdatingId(selectedRequest.request_id);
 
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    // FIX: Convert reviewAction to proper status value
-    const statusValue = reviewAction === "confirm" ? "confirmed" : "declined";
-    
-    const response = await fetch("/api/restock", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({
-        request_id: selectedRequest.request_id,
-        status: statusValue,
-        notes: reviewNotes,
-      }),
-    });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const statusValue = reviewAction === "confirm" ? "confirmed" : "declined";
+      
+      const response = await fetch("/api/restock", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          request_id: selectedRequest.request_id,
+          status: statusValue,
+          notes: reviewNotes,
+        }),
+      });
 
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to review request");
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to review request");
+      }
+
+      alert(`Request ${reviewAction === "confirm" ? "confirmed" : "declined"} successfully`);
+      setShowReviewModal(false);
+      setSelectedRequest(null);
+      setReviewNotes("");
+      await loadRequests();
+      await loadEquipment();
+      await loadTrolleys();
+    } catch (error) {
+      console.error("Error reviewing request:", error);
+      alert(error instanceof Error ? error.message : "Failed to review request");
+    } finally {
+      setUpdatingId(null);
     }
+  };
 
-    alert(`Request ${reviewAction === "confirm" ? "confirmed" : "declined"} successfully`);
-    setShowReviewModal(false);
-    setSelectedRequest(null);
+  const openReviewModal = (request: RestockRequest, action: "confirm" | "decline") => {
+    setSelectedRequest(request);
+    setReviewAction(action);
     setReviewNotes("");
-    await loadRequests();
-    await loadEquipment();
-  } catch (error) {
-    console.error("Error reviewing request:", error);
-    alert(error instanceof Error ? error.message : "Failed to review request");
-  } finally {
-    setUpdatingId(null);
-  }
-};
-
-const openReviewModal = (request: RestockRequest, action: "confirm" | "decline") => {
-  setSelectedRequest(request);
-  setReviewAction(action);
-  setReviewNotes("");
-  setShowReviewModal(true);
-};
+    setShowReviewModal(true);
+  };
 
   const filteredRequests = useMemo(() => {
     return requests.filter((request) => {
@@ -229,7 +287,7 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         return (
-          request.equipment_name.toLowerCase().includes(term) ||
+          request.item_name.toLowerCase().includes(term) ||
           request.requested_by_name.toLowerCase().includes(term)
         );
       }
@@ -292,7 +350,7 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
           </div>
         </div>
         <p className={styles.contentHeaderSubtitle}>
-          Request restocking of equipment items
+          Request restocking of equipment or trolleys
         </p>
       </div>
 
@@ -323,7 +381,7 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
             <div className={styles.searchContainer}>
               <input
                 type="text"
-                placeholder="Search by equipment or requester..."
+                placeholder="Search by item or requester..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={styles.searchInput}
@@ -352,7 +410,8 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Equipment</th>
+                  <th>Type</th>
+                  <th>Item</th>
                   <th>Requested By</th>
                   <th>Quantity</th>
                   <th>Reason</th>
@@ -364,12 +423,15 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
               <tbody>
                 {filteredRequests.map((request) => (
                   <tr key={request.request_id}>
-                    <td className={styles.equipmentName}>{request.equipment_name}</td>
+                    <td className={styles.itemType}>
+                      {request.item_type === "equipment" ? " Equipment" : " Trolley"}
+                    </td>
+                    <td className={styles.itemName}>{request.item_name}</td>
                     <td className={styles.requestedBy}>{request.requested_by_name}</td>
                     <td className={styles.quantity}>{request.requested_quantity}</td>
                     <td className={styles.reason}>{request.reason || "-"}</td>
                     <td className={styles.date}>{formatDate(request.created_at)}</td>
-                    <td>
+                    <td className={styles.statusCell}>
                       <span className={`${styles.statusBadge} ${getStatusBadgeClass(request.status)}`}>
                         {request.status}
                       </span>
@@ -383,7 +445,7 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
                             className={styles.confirmBtn}
                           >
                             Confirm
-                          </button>
+          </button>
                           <button
                             onClick={() => openReviewModal(request, "decline")}
                             disabled={updatingId === request.request_id}
@@ -418,7 +480,7 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
         </div>
       </div>
 
-      {/* New Request Modal with Search */}
+      {/* New Request Modal */}
       {showRequestModal && (
         <div className={styles.modalOverlay} onClick={() => setShowRequestModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -429,48 +491,124 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
               </button>
             </div>
             <div className={styles.modalBody}>
-              {/* Search Bar for Equipment */}
+              {/* Item Type Selection */}
               <div className={styles.formGroup}>
-                <label>Search Equipment</label>
-                <input
-                  type="text"
-                  placeholder="Type to search equipment..."
-                  value={equipmentSearchTerm}
-                  onChange={(e) => setEquipmentSearchTerm(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Select Equipment *</label>
-                <div className={styles.equipmentSelectWrapper}>
-                  <select
-                    value={selectedEquipment?.Equipment_ID || ""}
-                    onChange={(e) => {
-                      const eq = equipment.find((eq) => eq.Equipment_ID === parseInt(e.target.value));
-                      setSelectedEquipment(eq || null);
-                    }}
-                    className={styles.equipmentSelect}
-                    size={Math.min(filteredEquipment.length + 1, 8)}
+                <label>Item Type</label>
+                <div className={styles.typeToggle}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedType("equipment")}
+                    className={`${styles.typeBtn} ${selectedType === "equipment" ? styles.activeType : ""}`}
                   >
-                    <option value="">-- Select equipment --</option>
-                    {filteredEquipment.map((eq) => (
-                      <option key={eq.Equipment_ID} value={eq.Equipment_ID}>
-                        {eq.Name} (Stock: {eq.Quantity || 0})
-                      </option>
-                    ))}
-                  </select>
+                     Equipment
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedType("trolley")}
+                    className={`${styles.typeBtn} ${selectedType === "trolley" ? styles.activeType : ""}`}
+                  >
+                     Trolley
+                  </button>
                 </div>
-                {filteredEquipment.length === 0 && equipmentSearchTerm && (
-                  <p className={styles.noResults}>No equipment found matching "{equipmentSearchTerm}"</p>
-                )}
               </div>
 
-              {selectedEquipment && (
-                <div className={styles.selectedInfo}>
-                  <p><strong>Selected:</strong> {selectedEquipment.Name}</p>
-                  <p><strong>Current Stock:</strong> {selectedEquipment.Quantity || 0}</p>
-                </div>
+              {/* Equipment Section */}
+              {selectedType === "equipment" && (
+                <>
+                  <div className={styles.formGroup}>
+                    <label>Search Equipment</label>
+                    <input
+                      type="text"
+                      placeholder="Type to search equipment..."
+                      value={equipmentSearchTerm}
+                      onChange={(e) => setEquipmentSearchTerm(e.target.value)}
+                      className={styles.searchInput}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Select Equipment *</label>
+                    <div className={styles.equipmentSelectWrapper}>
+                      <select
+                        value={selectedEquipment?.Equipment_ID || ""}
+                        onChange={(e) => {
+                          const eq = equipment.find((eq) => eq.Equipment_ID === parseInt(e.target.value));
+                          setSelectedEquipment(eq || null);
+                        }}
+                        className={styles.equipmentSelect}
+                        size={Math.min(filteredEquipment.length + 1, 8)}
+                      >
+                        <option value="">-- Select equipment --</option>
+                        {filteredEquipment.map((eq) => (
+                          <option key={eq.Equipment_ID} value={eq.Equipment_ID}>
+                            {eq.Name} (Stock: {eq.Quantity || 0})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {filteredEquipment.length === 0 && equipmentSearchTerm && (
+                      <p className={styles.noResults}>No equipment found matching "{equipmentSearchTerm}"</p>
+                    )}
+                  </div>
+
+                  {selectedEquipment && (
+                    <div className={styles.selectedInfo}>
+                      <p><strong>Selected:</strong> {selectedEquipment.Name}</p>
+                      <p><strong>Current Stock:</strong> {selectedEquipment.Quantity || 0}</p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Trolley Section */}
+              {selectedType === "trolley" && (
+                <>
+                  <div className={styles.formGroup}>
+                    <label>Search Trolley</label>
+                    <input
+                      type="text"
+                      placeholder="Type to search trolley..."
+                      value={trolleySearchTerm}
+                      onChange={(e) => setTrolleySearchTerm(e.target.value)}
+                      className={styles.searchInput}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Select Trolley *</label>
+                    <div className={styles.equipmentSelectWrapper}>
+                      <select
+                        value={selectedTrolley?.trolley_id || ""}
+                        onChange={(e) => {
+                          const trolley = trolleys.find((t) => t.trolley_id === parseInt(e.target.value));
+                          setSelectedTrolley(trolley || null);
+                        }}
+                        className={styles.equipmentSelect}
+                        size={Math.min(filteredTrolleys.length + 1, 8)}
+                      >
+                        <option value="">-- Select trolley --</option>
+                        {filteredTrolleys.map((t) => (
+                          <option key={t.trolley_id} value={t.trolley_id}>
+                            {t.name} (Stock: {t.quantity || 0})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {filteredTrolleys.length === 0 && trolleySearchTerm && (
+                      <p className={styles.noResults}>No trolley found matching "{trolleySearchTerm}"</p>
+                    )}
+                  </div>
+
+                  {selectedTrolley && (
+                    <div className={styles.selectedInfo}>
+                      <p><strong>Selected:</strong> {selectedTrolley.name}</p>
+                      <p><strong>Current Stock:</strong> {selectedTrolley.quantity || 0}</p>
+                      {selectedTrolley.items && selectedTrolley.items.length > 0 && (
+                        <p><strong>Contains:</strong> {selectedTrolley.items.length} items</p>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
 
               <div className={styles.formGroup}>
@@ -507,7 +645,12 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
               <button
                 className={styles.submitBtn}
                 onClick={submitRequest}
-                disabled={!selectedEquipment || requestQuantity < 1 || submitting}
+                disabled={
+                  (selectedType === "equipment" && !selectedEquipment) ||
+                  (selectedType === "trolley" && !selectedTrolley) ||
+                  requestQuantity < 1 ||
+                  submitting
+                }
               >
                 {submitting ? "Submitting..." : "Submit Request"}
               </button>
@@ -527,7 +670,8 @@ const openReviewModal = (request: RestockRequest, action: "confirm" | "decline")
               </button>
             </div>
             <div className={styles.modalBody}>
-              <p><strong>Equipment:</strong> {selectedRequest.equipment_name}</p>
+              <p><strong>Type:</strong> {selectedRequest.item_type === "equipment" ? "Equipment" : "Trolley"}</p>
+              <p><strong>Item:</strong> {selectedRequest.item_name}</p>
               <p><strong>Requested By:</strong> {selectedRequest.requested_by_name}</p>
               <p><strong>Quantity:</strong> {selectedRequest.requested_quantity}</p>
               <p><strong>Reason:</strong> {selectedRequest.reason || "No reason provided"}</p>

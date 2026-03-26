@@ -19,6 +19,14 @@ type Room = {
   Letter: string | null;
 };
 
+type TrolleyItem = {
+  trolleyitem_id: number;
+  contents: string;
+  weight: string | null;
+  colour: string | null;
+  name: string;
+};
+
 type CartItem = {
   id: number;
   quantity: number;
@@ -26,6 +34,8 @@ type CartItem = {
   type: string | null;
   size: string | null;
   category: string | null;
+  isTrolley?: boolean;
+  trolleyItems?: TrolleyItem[];
 };
 
 type BookedDate = {
@@ -135,7 +145,6 @@ export default function RoomsPage() {
       
       console.log(`Adding dates from ${booking.start_date} to ${booking.end_date}`);
       
-      // Add every date in the range to unavailable set
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().split('T')[0];
         unavailable.add(dateStr);
@@ -311,6 +320,7 @@ export default function RoomsPage() {
       const start = startDate.toISOString().split('T')[0];
       const end = endDate.toISOString().split('T')[0];
 
+      // Create booking
       const { data: booking, error: bookingError } = await supabase
         .from('bookings')
         .insert({
@@ -327,12 +337,21 @@ export default function RoomsPage() {
 
       if (bookingError) throw bookingError;
 
-      const bookingItems = cartItems.map(item => ({
-        booking_id: booking.booking_id,
-        equipment_id: item.id,
-        equipment_name: item.name,
-        quantity: item.quantity
-      }));
+      // Create booking items - handle both equipment and trolleys
+      const bookingItems = [
+        ...cartItems.filter(item => !item.isTrolley).map(item => ({
+          booking_id: booking.booking_id,
+          equipment_id: item.id,
+          equipment_name: item.name,
+          quantity: item.quantity
+        })),
+        ...cartItems.filter(item => item.isTrolley).map(item => ({
+          booking_id: booking.booking_id,
+          equipment_id: item.id,
+          equipment_name: `${item.name} (Trolley)`,
+          quantity: item.quantity
+        }))
+      ];
 
       const { error: itemsError } = await supabase
         .from('booking_items')
@@ -340,6 +359,7 @@ export default function RoomsPage() {
 
       if (itemsError) throw itemsError;
 
+      // Clear cart
       localStorage.removeItem('cart');
       
       alert(`Booking confirmed for ${durationDays} days!`);

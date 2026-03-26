@@ -15,6 +15,21 @@ type Equipment = {
   Equipment_Catagory: string | null;
 };
 
+type TrolleyItem = {
+  trolleyitem_id: number;
+  contents: string;
+  weight: string | null;
+  colour: string | null;
+  name: string;
+};
+
+type Trolley = {
+  trolley_id: number;
+  name: string;
+  quantity: number;
+  items?: TrolleyItem[];
+};
+
 type CartItem = {
   id: number;
   quantity: number;
@@ -22,185 +37,114 @@ type CartItem = {
   type: string | null;
   size: string | null;
   category: string | null;
+  isTrolley?: boolean;
+  trolleyItems?: TrolleyItem[];
 };
 
 export default function EquipmentPage() {
   const supabase = createClient();
   const router = useRouter();
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [trolleys, setTrolleys] = useState<Trolley[]>([]);
   const [quantities, setQuantities] = useState<Record<number, number>>({});
-  const [loading, setLoading] = useState<boolean>(true);
+  const [trolleyQuantities, setTrolleyQuantities] = useState<Record<number, number>>({});
+  const [loading, setLoading] = useState(true);
   const [addingId, setAddingId] = useState<number | null>(null);
+  const [showTrolleys, setShowTrolleys] = useState(false);
+  const [selectedTrolley, setSelectedTrolley] = useState<Trolley | null>(null);
+  const [showItemsModal, setShowItemsModal] = useState(false);
   
   // Pagination state
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage: number = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   
-  // Filter state
+  // Filter and search state
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedType, setSelectedType] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  
-  // Get all unique categories and types
-  const allCategories: string[] = useMemo(() => {
-    const unique = [...new Set(equipment.map((item: Equipment) => item.Equipment_Catagory).filter((cat): cat is string => cat !== null))];
-    return ["all", ...unique];
-  }, [equipment]);
-
-  const allTypes: string[] = useMemo(() => {
-    const unique = [...new Set(equipment.map((item: Equipment) => item.Type).filter((type): type is string => type !== null))];
-    return ["all", ...unique];
-  }, [equipment]);
-
-  // Get available categories based on selected type
-  const availableCategories: string[] = useMemo(() => {
-    let filtered: Equipment[] = equipment;
-    
-    if (selectedType !== "all") {
-      filtered = filtered.filter((item: Equipment) => item.Type === selectedType);
-    }
-    
-    const unique = [...new Set(filtered.map((item: Equipment) => item.Equipment_Catagory).filter((cat): cat is string => cat !== null))];
-    return ["all", ...unique];
-  }, [equipment, selectedType]);
-
-  // Get available types based on selected category
-  const availableTypes: string[] = useMemo(() => {
-    let filtered: Equipment[] = equipment;
-    
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((item: Equipment) => item.Equipment_Catagory === selectedCategory);
-    }
-    
-    const unique = [...new Set(filtered.map((item: Equipment) => item.Type).filter((type): type is string => type !== null))];
-    return ["all", ...unique];
-  }, [equipment, selectedCategory]);
-
-  // Filter equipment based on category, type, and search term
-  const filteredEquipment: Equipment[] = useMemo(() => {
-    let filtered: Equipment[] = equipment;
-    
-    // Filter by category
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((item: Equipment) => item.Equipment_Catagory === selectedCategory);
-    }
-    
-    // Filter by type
-    if (selectedType !== "all") {
-      filtered = filtered.filter((item: Equipment) => item.Type === selectedType);
-    }
-    
-    // Filter by search term
-    if (searchTerm.trim() !== "") {
-      const term: string = searchTerm.toLowerCase();
-      filtered = filtered.filter((item: Equipment) => 
-        item.Name.toLowerCase().includes(term) ||
-        (item.Type !== null && item.Type.toLowerCase().includes(term)) ||
-        (item.Equipment_Catagory !== null && item.Equipment_Catagory.toLowerCase().includes(term))
-      );
-    }
-    
-    return filtered;
-  }, [equipment, selectedCategory, selectedType, searchTerm]);
-
-  // Pagination calculations
-  const totalPages: number = Math.ceil(filteredEquipment.length / itemsPerPage);
-  const startIndex: number = (currentPage - 1) * itemsPerPage;
-  const paginatedEquipment: Equipment[] = filteredEquipment.slice(startIndex, startIndex + itemsPerPage);
-  
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, selectedType, searchTerm]);
-
-  // Handle category change - reset type if needed
-  const handleCategoryChange = (newCategory: string): void => {
-    setSelectedCategory(newCategory);
-    // Reset type if the current type is not available with the new category
-    if (selectedType !== "all") {
-      // We need to check if the current type exists in the new category
-      // This will be validated by the availableTypes memo after state update
-    }
-  };
-
-  // Handle type change - reset category if needed
-  const handleTypeChange = (newType: string): void => {
-    setSelectedType(newType);
-    // Reset category if the current category is not available with the new type
-    if (selectedCategory !== "all") {
-      // This will be validated by the availableCategories memo after state update
-    }
-  };
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    async function loadEquipment(): Promise<void> {
+    async function loadData() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         router.push("/login");
         return;
       }
 
-      const { data } = await supabase
+      // Load equipment
+      const { data: equipmentData } = await supabase
         .from('Equipment')
         .select('*')
         .order('Name', { ascending: true });
       
-      setEquipment((data as Equipment[]) || []);
+      setEquipment(equipmentData || []);
+
+      // Load trolleys with their quantities
+      const { data: trolleyData } = await supabase
+        .from('Trolleys')
+        .select('*')
+        .order('name', { ascending: true });
+      
+      if (trolleyData) {
+        // Load items for each trolley
+        const trolleysWithItems = await Promise.all(
+          trolleyData.map(async (trolley) => {
+            const { data: items } = await supabase
+              .from('Trolley_Items')
+              .select('*')
+              .eq('trolley_id', trolley.trolley_id);
+            return { ...trolley, items: items || [] };
+          })
+        );
+        setTrolleys(trolleysWithItems);
+      }
+      
       setLoading(false);
     }
 
-    loadEquipment();
-  }, [supabase, router]);
+    loadData();
+  }, []);
 
-  // Use useEffect to reset invalid filters AFTER the available options have been recalculated
-  // This is safe because we only run it when availableCategories/availableTypes change,
-  // not when the selected values change directly
-  useEffect(() => {
-    if (selectedCategory !== "all" && !availableCategories.includes(selectedCategory)) {
-      setSelectedCategory("all");
+  const getCategories = useMemo(() => {
+    const unique = [...new Set(equipment.map(item => item.Equipment_Catagory).filter(Boolean))];
+    return ["all", ...unique];
+  }, [equipment]);
+
+  const filteredEquipment = useMemo(() => {
+    let filtered = equipment;
+    
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(item => item.Equipment_Catagory === selectedCategory);
     }
-  }, [availableCategories]); // Only depends on availableCategories, not on selectedCategory
+    
+    if (searchTerm.trim() !== "") {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.Name.toLowerCase().includes(term) ||
+        (item.Type && item.Type.toLowerCase().includes(term))
+      );
+    }
+    
+    return filtered;
+  }, [equipment, selectedCategory, searchTerm]);
+
+  const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedEquipment = filteredEquipment.slice(startIndex, startIndex + itemsPerPage);
 
   useEffect(() => {
-    if (selectedType !== "all" && !availableTypes.includes(selectedType)) {
-      setSelectedType("all");
-    }
-  }, [availableTypes]); // Only depends on availableTypes, not on selectedType
+    setCurrentPage(1);
+  }, [selectedCategory, searchTerm]);
 
-  const handleQuantityChange = (id: number, value: number): void => {
-    setQuantities((prev: Record<number, number>) => ({ ...prev, [id]: value }));
-  };
-
-  const incrementQuantity = (id: number, maxQty: number): void => {
-    setQuantities((prev: Record<number, number>) => {
-      const current: number = prev[id] || 1;
-      if (current < maxQty) {
-        return { ...prev, [id]: current + 1 };
-      }
-      return prev;
-    });
-  };
-
-  const decrementQuantity = (id: number): void => {
-    setQuantities((prev: Record<number, number>) => {
-      const current: number = prev[id] || 1;
-      if (current > 1) {
-        return { ...prev, [id]: current - 1 };
-      }
-      return prev;
-    });
-  };
-
-  const addToCart = (item: Equipment): void => {
+  const addToCart = (item: Equipment) => {
     setAddingId(item.Equipment_ID);
     
     const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingItem: CartItem | undefined = cart.find((i: CartItem) => i.id === item.Equipment_ID);
+    const existingItem = cart.find((i) => i.id === item.Equipment_ID && !i.isTrolley);
     
-    const requestedQty: number = quantities[item.Equipment_ID] || 1;
-    const availableQty: number = item.Quantity || 0;
-    const existingQty: number = existingItem?.quantity || 0;
-    const totalRequested: number = existingQty + requestedQty;
+    const requestedQty = quantities[item.Equipment_ID] || 1;
+    const availableQty = item.Quantity || 0;
+    const existingQty = existingItem?.quantity || 0;
+    const totalRequested = existingQty + requestedQty;
     
     if (totalRequested > availableQty) {
       alert(`Only ${availableQty} items available in stock. You already have ${existingQty} in your cart.`);
@@ -217,7 +161,8 @@ export default function EquipmentPage() {
         name: item.Name,
         type: item.Type,
         size: item.Size,
-        category: item.Equipment_Catagory
+        category: item.Equipment_Catagory,
+        isTrolley: false
       });
     }
     
@@ -226,56 +171,55 @@ export default function EquipmentPage() {
     alert(`${item.Name} added to cart!`);
   };
 
-  // Generate page numbers with ellipsis
-  const getPageNumbersWithEllipsis = (): (number | string)[] => {
-    const total: number = totalPages;
-    const current: number = currentPage;
-    const delta: number = 2;
+  const addTrolleyToCart = (trolley: Trolley) => {
+    const qty = trolleyQuantities[trolley.trolley_id] || 1;
     
-    const range: number[] = [];
-    const rangeWithDots: (number | string)[] = [];
-    let l: number | undefined;
-    
-    for (let i = 1; i <= total; i++) {
-      if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
-        range.push(i);
-      }
+    // Check if enough quantity available
+    if (trolley.quantity < qty) {
+      alert(`Only ${trolley.quantity} ${trolley.name}(s) available in stock.`);
+      return;
     }
     
-    for (const i of range) {
-      if (l) {
-        if (i - l === 2) {
-          rangeWithDots.push(l + 1);
-        } else if (i - l !== 1) {
-          rangeWithDots.push('...');
-        }
-      }
-      rangeWithDots.push(i);
-      l = i;
+    const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existingItem = cart.find((i) => i.id === trolley.trolley_id && i.isTrolley);
+    
+    // Check if total requested exceeds available
+    const existingQty = existingItem?.quantity || 0;
+    if (existingQty + qty > trolley.quantity) {
+      alert(`You already have ${existingQty} in cart. Only ${trolley.quantity - existingQty} more available.`);
+      return;
     }
     
-    return rangeWithDots;
+    if (existingItem) {
+      existingItem.quantity += qty;
+    } else {
+      cart.push({
+        id: trolley.trolley_id,
+        quantity: qty,
+        name: trolley.name,
+        type: "Trolley",
+        size: null,
+        category: "Trolley",
+        isTrolley: true,
+        trolleyItems: trolley.items
+      });
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`${trolley.name} added to cart!`);
   };
 
-  const goToPage = (page: number): void => {
-    const pageNum: number = Number(page);
-    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
-      setCurrentPage(pageNum);
-    }
+  const viewTrolleyItems = (trolley: Trolley) => {
+    setSelectedTrolley(trolley);
+    setShowItemsModal(true);
   };
 
-  const handlePageInput = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key === 'Enter') {
-      const target = e.target as HTMLInputElement;
-      goToPage(parseInt(target.value));
-    }
+  const handleQuantityChange = (id: number, value: number) => {
+    setQuantities(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleGoToPage = (): void => {
-    const input = document.querySelector(`.${styles.pageInput}`) as HTMLInputElement;
-    if (input) {
-      goToPage(parseInt(input.value));
-    }
+  const handleTrolleyQuantityChange = (id: number, value: number) => {
+    setTrolleyQuantities(prev => ({ ...prev, [id]: value }));
   };
 
   if (loading) return <div className={styles.loading}>Loading...</div>;
@@ -283,217 +227,225 @@ export default function EquipmentPage() {
   return (
     <div className={styles.pageContent}>
       <div className={styles.contentHeader}>
-        <h1 className={styles.contentHeaderTitle}>Equipment Catalogue</h1>
+        <div className={styles.headerTop}>
+          <h1 className={styles.contentHeaderTitle}>Equipment Catalogue</h1>
+          <div className={styles.headerButtons}>
+            <button 
+              onClick={() => setShowTrolleys(!showTrolleys)}
+              className={showTrolleys ? styles.activeTab : styles.tabBtn}
+            >
+              {showTrolleys ? " Equipment" : " View Trolleys"}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className={styles.contentArea}>
         <div className={styles.shell}>
-          {/* Search Bar */}
-          <div className={styles.filterBar}>
-            <div className={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Search equipment by name, type, or category..."
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                className={styles.searchInput}
-              />
-            </div>
-          </div>
-
-          {/* Dual Filters - Category and Type side by side */}
-          <div className={styles.dualFilters}>
-            <div className={styles.filterGroup}>
-              <label>Filter by Category:</label>
-              <select
-                value={selectedCategory}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedCategory(e.target.value)}
-                className={styles.filterSelect}
-              >
-                {availableCategories.map((cat: string) => (
-                  <option key={cat} value={cat}>
-                    {cat === "all" ? "All Categories" : cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.filterGroup}>
-              <label>Filter by Type:</label>
-              <select
-                value={selectedType}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedType(e.target.value)}
-                className={styles.filterSelect}
-              >
-                {availableTypes.map((type: string) => (
-                  <option key={type} value={type}>
-                    {type === "all" ? "All Types" : type}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className={styles.pageTitleRow}>
-            <h2 className={styles.pageTitle}>Equipment Catalogue</h2>
-            <span className={styles.totalCount}>
-              {filteredEquipment.length} items
-            </span>
-          </div>
-
-          {/* Equipment Grid */}
-          <div className={styles.equipmentGrid}>
-            {paginatedEquipment.map((item: Equipment) => {
-              const availableQty: number = item.Quantity || 0;
-              const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
-              const existingItem: CartItem | undefined = cart.find((i: CartItem) => i.id === item.Equipment_ID);
-              const existingQty: number = existingItem?.quantity || 0;
-              const remainingStock: number = availableQty - existingQty;
-              const currentQty: number = quantities[item.Equipment_ID] || 1;
-              
-              return (
-                <div key={item.Equipment_ID} className={styles.equipmentCard}>
-                  <div className={styles.cardHeader}>
-                    <h4 className={styles.itemName}>{item.Name}</h4>
-                    {item.Type && (
-                      <span className={styles.itemType}>{item.Type}</span>
-                    )}
-                  </div>
-                  
-                  <div className={styles.cardDetails}>
-                    {item.Size && (
-                      <p><strong>Size:</strong> {item.Size}</p>
-                    )}
-                    <p className={styles.quantity}>
-                      <strong>Available:</strong> 
-                      <span className={availableQty > 0 ? styles.inStock : styles.outOfStock}>
-                        {availableQty}
-                      </span>
-                    </p>
-                    {existingQty > 0 && (
-                      <p className={styles.inCart}>
-                        In cart: {existingQty}
-                      </p>
-                    )}
-                  </div>
-
-                  {availableQty > 0 && remainingStock > 0 && (
-                    <div className={styles.cardActions}>
-                      <div className={styles.quantityControl}>
-                        <button 
-                          className={styles.qtyBtn}
-                          onClick={() => decrementQuantity(item.Equipment_ID)}
-                          disabled={currentQty <= 1}
-                        >
-                          −
-                        </button>
-                        <span className={styles.qtyDisplay}>{currentQty}</span>
-                        <button 
-                          className={styles.qtyBtn}
-                          onClick={() => incrementQuantity(item.Equipment_ID, remainingStock)}
-                          disabled={currentQty >= remainingStock}
-                        >
-                          +
-                        </button>
-                      </div>
-                      <button 
-                        className={styles.addToCartBtn}
-                        onClick={() => addToCart(item)}
-                        disabled={addingId === item.Equipment_ID}
-                      >
-                        {addingId === item.Equipment_ID ? 'Adding...' : 'Add to Cart'}
-                      </button>
-                    </div>
-                  )}
-                  
-                  {availableQty === 0 && (
-                    <div className={styles.outOfStockMessage}>
-                      Out of stock
-                    </div>
-                  )}
-                  
-                  {availableQty > 0 && remainingStock === 0 && (
-                    <div className={styles.maxStockMessage}>
-                      Max quantity in cart (all {availableQty})
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className={styles.pagination}>
-              <div className={styles.paginationControls}>
-                <button
-                  onClick={() => setCurrentPage(1)}
-                  disabled={currentPage === 1}
-                  className={styles.pageBtn}
-                >
-                  « First
-                </button>
-                <button
-                  onClick={() => setCurrentPage((prev: number) => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                  className={styles.pageBtn}
-                >
-                  ‹ Prev
-                </button>
-                
-                {getPageNumbersWithEllipsis().map((page: number | string, index: number) => (
-                  page === '...' ? (
-                    <span key={`ellipsis-${index}`} className={styles.ellipsis}>...</span>
-                  ) : (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page as number)}
-                      className={`${styles.pageNum} ${currentPage === page ? styles.activePage : ""}`}
-                    >
-                      {page}
-                    </button>
-                  )
-                ))}
-                
-                <button
-                  onClick={() => setCurrentPage((prev: number) => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                  className={styles.pageBtn}
-                >
-                  Next ›
-                </button>
-                <button
-                  onClick={() => setCurrentPage(totalPages)}
-                  disabled={currentPage === totalPages}
-                  className={styles.pageBtn}
-                >
-                  Last »
-                </button>
-                
-                <div className={styles.paginationInfo}>
-                  <span className={styles.pageInfoText}>
-                    Page {currentPage} of {totalPages}
-                  </span>
+          {!showTrolleys ? (
+            // Equipment View
+            <>
+              {/* Filter Bar */}
+              <div className={styles.filterBar}>
+                <div className={styles.searchContainer}>
                   <input
-                    type="number"
-                    min={1}
-                    max={totalPages}
-                    placeholder="Go to"
-                    className={styles.pageInput}
-                    onKeyDown={handlePageInput}
+                    type="text"
+                    placeholder="Search equipment by name or type..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={styles.searchInput}
                   />
-                  <button
-                    onClick={handleGoToPage}
-                    className={styles.goToBtn}
-                  >
-                    Go
-                  </button>
                 </div>
+                <div className={styles.categoryFilter}>
+                  <label>Filter by Category:</label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className={styles.categorySelect}
+                  >
+                    {getCategories.map(cat => (
+                      <option key={cat} value={cat}>
+                        {cat === "all" ? "All Categories" : cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.pageTitleRow}>
+                <h2 className={styles.pageTitle}>Equipment</h2>
+                <span className={styles.totalCount}>
+                  {filteredEquipment.length} items
+                </span>
+              </div>
+
+              <div className={styles.equipmentGrid}>
+                {paginatedEquipment.map((item) => {
+                  const availableQty = item.Quantity || 0;
+                  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                  const existingItem = cart.find((i) => i.id === item.Equipment_ID && !i.isTrolley);
+                  const existingQty = existingItem?.quantity || 0;
+                  const remainingStock = availableQty - existingQty;
+                  const currentQty = quantities[item.Equipment_ID] || 1;
+                  
+                  return (
+                    <div key={item.Equipment_ID} className={styles.equipmentCard}>
+                      <h4 className={styles.itemName}>{item.Name}</h4>
+                      {item.Type && <span className={styles.itemType}>{item.Type}</span>}
+                      {item.Size && <p><strong>Size:</strong> {item.Size}</p>}
+                      <p className={styles.quantity}>
+                        <strong>Available:</strong> 
+                        <span className={availableQty > 0 ? styles.inStock : styles.outOfStock}>
+                          {availableQty}
+                        </span>
+                      </p>
+                      {existingQty > 0 && <p className={styles.inCart}>In cart: {existingQty}</p>}
+
+                      {availableQty > 0 && remainingStock > 0 && (
+                        <div className={styles.cardActions}>
+                          <div className={styles.quantityControl}>
+                            <button 
+                              className={styles.qtyBtn}
+                              onClick={() => {
+                                const newQty = Math.max(1, currentQty - 1);
+                                handleQuantityChange(item.Equipment_ID, newQty);
+                              }}
+                              disabled={currentQty <= 1}
+                            >−</button>
+                            <span className={styles.qtyDisplay}>{currentQty}</span>
+                            <button 
+                              className={styles.qtyBtn}
+                              onClick={() => {
+                                const newQty = Math.min(remainingStock, currentQty + 1);
+                                handleQuantityChange(item.Equipment_ID, newQty);
+                              }}
+                              disabled={currentQty >= remainingStock}
+                            >+</button>
+                          </div>
+                          <button 
+                            className={styles.addToCartBtn}
+                            onClick={() => addToCart(item)}
+                            disabled={addingId === item.Equipment_ID}
+                          >
+                            {addingId === item.Equipment_ID ? 'Adding...' : 'Add to Cart'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            // Trolleys View
+            <div>
+              <div className={styles.pageTitleRow}>
+                <h2 className={styles.pageTitle}>Trolleys</h2>
+                <span className={styles.totalCount}>
+                  {trolleys.length} trolleys available
+                </span>
+              </div>
+
+              <div className={styles.equipmentGrid}>
+                {trolleys.map((trolley) => {
+                  const currentQty = trolleyQuantities[trolley.trolley_id] || 1;
+                  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                  const existingItem = cart.find((i) => i.id === trolley.trolley_id && i.isTrolley);
+                  const existingQty = existingItem?.quantity || 0;
+                  const remainingStock = trolley.quantity - existingQty;
+                  
+                  return (
+                    <div key={trolley.trolley_id} className={styles.equipmentCard}>
+                      <div className={styles.cardHeader}>
+                        <h4 className={styles.itemName}>{trolley.name}</h4>
+                        <span className={styles.itemType}>Trolley</span>
+                      </div>
+                      
+                      <div className={styles.cardDetails}>
+                        <p className={styles.quantity}>
+                          <strong>Available:</strong> 
+                          <span className={trolley.quantity > 0 ? styles.inStock : styles.outOfStock}>
+                            {trolley.quantity}
+                          </span>
+                        </p>
+                        {existingQty > 0 && (
+                          <p className={styles.inCart}>
+                            In cart: {existingQty}
+                          </p>
+                        )}
+                        {trolley.items && trolley.items.length > 0 && (
+                          <button 
+                            onClick={() => viewTrolleyItems(trolley)}
+                            className={styles.viewItemsBtn}
+                          >
+                            View Items ({trolley.items.length})
+                          </button>
+                        )}
+                      </div>
+
+                      {trolley.quantity > 0 && remainingStock > 0 && (
+                        <div className={styles.cardActions}>
+                          <div className={styles.quantityControl}>
+                            <button 
+                              className={styles.qtyBtn}
+                              onClick={() => {
+                                const newQty = Math.max(1, currentQty - 1);
+                                handleTrolleyQuantityChange(trolley.trolley_id, newQty);
+                              }}
+                              disabled={currentQty <= 1}
+                            >−</button>
+                            <span className={styles.qtyDisplay}>{currentQty}</span>
+                            <button 
+                              className={styles.qtyBtn}
+                              onClick={() => {
+                                const newQty = Math.min(remainingStock, currentQty + 1);
+                                handleTrolleyQuantityChange(trolley.trolley_id, newQty);
+                              }}
+                              disabled={currentQty >= remainingStock}
+                            >+</button>
+                          </div>
+                          <button 
+                            className={styles.addToCartBtn}
+                            onClick={() => addTrolleyToCart(trolley)}
+                          >
+                            Add to Cart
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Trolley Items Modal */}
+      {showItemsModal && selectedTrolley && (
+        <div className={styles.modalOverlay} onClick={() => setShowItemsModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>{selectedTrolley.name} - Contents</h2>
+              <button className={styles.modalClose} onClick={() => setShowItemsModal(false)}>×</button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.itemsList}>
+                {selectedTrolley.items?.map((item) => (
+                  <div key={item.trolleyitem_id} className={styles.trolleyItem}>
+                    <span className={styles.itemContent}>{item.contents}</span>
+                    {item.colour && <span className={styles.itemColour}>Colour: {item.colour}</span>}
+                    {item.weight && <span className={styles.itemWeight}>Weight: {item.weight}</span>}
+                  </div>
+                ))}
+                {(!selectedTrolley.items || selectedTrolley.items.length === 0) && (
+                  <p className={styles.noItems}>No items listed for this trolley.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className={styles.footer}>
         <p>© 2026 TORS Health Equipment - Sheffield Hallam University</p>
