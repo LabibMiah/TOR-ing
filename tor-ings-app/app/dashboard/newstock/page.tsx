@@ -59,6 +59,7 @@ export default function TestUploadPage() {
     });
   };
 
+  /*pushes to database */
   const handleNewStock = async() => {
     const { name, type, size, quantity, category } = formData;
     if (!name || !quantity) {
