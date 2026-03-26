@@ -33,7 +33,6 @@ export default async function DashboardLayout({
     { name: "Dashboard", href: "/dashboard", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "My Cart", href: "/dashboard/cart", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "Equipment Catalogue", href: "/dashboard/booking", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
-    { name: "Rooms", href: "/dashboard/rooms", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "My Bookings", href: "/dashboard/orders", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     //Tier 2 features and above
     { name: "Schedule", href: "/dashboard/schedule", tiers: ["Tier 2", "Tier 3", "Tier 4"] },

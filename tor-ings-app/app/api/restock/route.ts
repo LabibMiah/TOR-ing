@@ -87,23 +87,68 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { item_type, item_id, item_name, requested_quantity, reason } = body;
+    const { item_type, item_id, item_name, requested_quantity, reason, new_item_details } = body;
 
-    if (!item_type || !item_id || !item_name || !requested_quantity) {
+    if (!item_type || !requested_quantity) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Handle new item requests differently
+    if (item_type === "new_item") {
+      // Format the new item details for storage
+      const newItemInfo = new_item_details ? {
+        name: item_name,
+        category: new_item_details.category || null,
+        type: new_item_details.type || null,
+        size: new_item_details.size || null,
+        quantity: requested_quantity,
+        reason: reason,
+        requested_by: account.forename || user.email?.split("@")[0] || "User"
+      } : null;
 
-const insertData = {
-  item_type,           // 'equipment' or 'trolley'
-  item_id,             // equipment_id or trolley_id
-  item_name,           // equipment name or trolley name
-  requested_quantity,
-  reason: reason || null,
-  requested_by: user.id,
-  requested_by_name: account.forename || user.email?.split("@")[0] || "User",
-  status: "pending",
-};
+      const insertData = {
+        item_type: "new_item",
+        item_id: null, // Null for new items
+        item_name: item_name,
+        requested_quantity: requested_quantity,
+        reason: reason || null,
+        requested_by: user.id,
+        requested_by_name: account.forename || user.email?.split("@")[0] || "User",
+        status: "pending",
+        notes: newItemInfo ? JSON.stringify(newItemInfo) : null, // Store all details in notes
+      };
+
+      console.log("Inserting new item request:", insertData);
+
+      const { data, error } = await supabaseAdmin
+        .from("restock_requests")
+        .insert(insertData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Database error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({ request: data });
+    }
+
+    // Regular equipment or trolley requests
+    if (!item_id || !item_name) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const insertData = {
+      item_type,
+      item_id,
+      item_name,
+      requested_quantity,
+      reason: reason || null,
+      requested_by: user.id,
+      requested_by_name: account.forename || user.email?.split("@")[0] || "User",
+      status: "pending",
+    };
 
     console.log("Inserting restock request:", insertData);
 
@@ -177,6 +222,63 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
+    // If confirming a new item request, create the equipment
+    if (status === "confirmed" && existingRequest.item_type === "new_item") {
+      // Parse the new item details from notes
+      let newItemDetails = {};
+      try {
+        newItemDetails = JSON.parse(existingRequest.notes || "{}");
+      } catch (e) {
+        console.error("Error parsing new item details:", e);
+      }
+      
+      // Create the new equipment in the Equipment table
+      const { data: newEquipment, error: createError } = await supabaseAdmin
+        .from("Equipment")
+        .insert({
+          Name: existingRequest.item_name,
+          Equipment_Catagory: newItemDetails.category || null,
+          Type: newItemDetails.type || null,
+          Size: newItemDetails.size || null,
+          Quantity: existingRequest.requested_quantity,
+        })
+        .select()
+        .single();
+      
+      if (createError) {
+        console.error("Error creating new equipment:", createError);
+        return NextResponse.json({ error: "Failed to create equipment: " + createError.message }, { status: 500 });
+      }
+      
+      console.log("Created new equipment:", newEquipment);
+      
+      // Update the request with the new equipment ID
+      const updateData = {
+        status,
+        notes: notes || null,
+        reviewed_by: user.id,
+        reviewed_by_name: account.forename || user.email?.split("@")[0] || "User",
+        reviewed_at: new Date().toISOString(),
+        item_id: newEquipment.Equipment_ID,
+        item_type: "equipment", // Change type to equipment since it's now created
+      };
+      
+      const { data, error } = await supabaseAdmin
+        .from("restock_requests")
+        .update(updateData)
+        .eq("request_id", request_id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error("Database error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      
+      return NextResponse.json({ request: data });
+    }
+    
+    // Regular equipment or trolley requests update
     const updateData = {
       status,
       notes: notes || null,
@@ -199,31 +301,30 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // If confirmed, update the actual item quantity
-    if (status === "confirmed") {
+    // If confirmed, update the actual item quantity (only for existing items)
+    if (status === "confirmed" && existingRequest.item_type !== "new_item") {
       if (existingRequest.item_type === "equipment") {
         // Update equipment quantity
-        const { error: updateError } = await supabaseAdmin
-          .from("Equipment")
-          .update({ 
-            Quantity: supabaseAdmin.rpc('increment', { row_id: existingRequest.item_id, amount: existingRequest.requested_quantity })
-          })
-          .eq("Equipment_ID", existingRequest.item_id);
+        const { error: updateError } = await supabaseAdmin.rpc('increment_equipment_quantity', {
+          p_equipment_id: existingRequest.item_id,
+          p_amount: existingRequest.requested_quantity
+        });
         
         if (updateError) {
           console.error("Error updating equipment:", updateError);
+          // Don't return error here since the request was already updated
+          // You might want to handle this differently based on your requirements
         }
       } else if (existingRequest.item_type === "trolley") {
         // Update trolley quantity
-        const { error: updateError } = await supabaseAdmin
-          .from("Trolleys")
-          .update({ 
-            quantity: supabaseAdmin.rpc('increment', { row_id: existingRequest.item_id, amount: existingRequest.requested_quantity })
-          })
-          .eq("trolley_id", existingRequest.item_id);
+        const { error: updateError } = await supabaseAdmin.rpc('increment_trolley_quantity', {
+          p_trolley_id: existingRequest.item_id,
+          p_amount: existingRequest.requested_quantity
+        });
         
         if (updateError) {
           console.error("Error updating trolley:", updateError);
+          // Don't return error here since the request was already updated
         }
       }
     }

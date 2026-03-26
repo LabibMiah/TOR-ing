@@ -708,6 +708,21 @@ button:disabled {
   opacity: 0.8;
 }
 
+.infoBox {
+  background-color: #eef2ff;
+  border-left: 4px solid #672146;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.infoBox p {
+  margin: 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+
 /* Responsive */
 @media (max-width: 768px) {
   .statsGrid {

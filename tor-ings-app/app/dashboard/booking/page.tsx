@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import styles from "./booking.module.css";
 
@@ -44,6 +44,9 @@ type CartItem = {
 export default function EquipmentPage() {
   const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const preselectedEquipmentId = searchParams.get('equipment');
+  
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [trolleys, setTrolleys] = useState<Trolley[]>([]);
   const [quantities, setQuantities] = useState<Record<number, number>>({});
@@ -53,6 +56,8 @@ export default function EquipmentPage() {
   const [showTrolleys, setShowTrolleys] = useState(false);
   const [selectedTrolley, setSelectedTrolley] = useState<Trolley | null>(null);
   const [showItemsModal, setShowItemsModal] = useState(false);
+  const [preselectedItem, setPreselectedItem] = useState<Equipment | null>(null);
+  const [preselectedQuantity, setPreselectedQuantity] = useState(1);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -78,14 +83,13 @@ export default function EquipmentPage() {
       
       setEquipment(equipmentData || []);
 
-      // Load trolleys with their quantities
+      // Load trolleys
       const { data: trolleyData } = await supabase
         .from('Trolleys')
         .select('*')
         .order('name', { ascending: true });
       
       if (trolleyData) {
-        // Load items for each trolley
         const trolleysWithItems = await Promise.all(
           trolleyData.map(async (trolley) => {
             const { data: items } = await supabase
@@ -98,11 +102,31 @@ export default function EquipmentPage() {
         setTrolleys(trolleysWithItems);
       }
       
+      // Check for preselected equipment
+      if (preselectedEquipmentId && equipmentData) {
+        const preselected = equipmentData.find(eq => eq.Equipment_ID === parseInt(preselectedEquipmentId));
+        if (preselected) {
+          setPreselectedItem(preselected);
+          setPreselectedQuantity(1);
+          // Auto-scroll to the preselected item
+          setTimeout(() => {
+            const element = document.getElementById(`equipment-${preselected.Equipment_ID}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              element.classList.add(styles.highlight);
+              setTimeout(() => {
+                element.classList.remove(styles.highlight);
+              }, 2000);
+            }
+          }, 500);
+        }
+      }
+      
       setLoading(false);
     }
 
     loadData();
-  }, []);
+  }, [preselectedEquipmentId]);
 
   const getCategories = useMemo(() => {
     const unique = [...new Set(equipment.map(item => item.Equipment_Catagory).filter(Boolean))];
@@ -135,16 +159,16 @@ export default function EquipmentPage() {
     setCurrentPage(1);
   }, [selectedCategory, searchTerm]);
 
-  const addToCart = (item: Equipment) => {
+  const addToCart = (item: Equipment, quantity?: number) => {
+    const qty = quantity || quantities[item.Equipment_ID] || 1;
     setAddingId(item.Equipment_ID);
     
     const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItem = cart.find((i) => i.id === item.Equipment_ID && !i.isTrolley);
     
-    const requestedQty = quantities[item.Equipment_ID] || 1;
     const availableQty = item.Quantity || 0;
     const existingQty = existingItem?.quantity || 0;
-    const totalRequested = existingQty + requestedQty;
+    const totalRequested = existingQty + qty;
     
     if (totalRequested > availableQty) {
       alert(`Only ${availableQty} items available in stock. You already have ${existingQty} in your cart.`);
@@ -153,11 +177,11 @@ export default function EquipmentPage() {
     }
     
     if (existingItem) {
-      existingItem.quantity += requestedQty;
+      existingItem.quantity += qty;
     } else {
       cart.push({
         id: item.Equipment_ID,
-        quantity: requestedQty,
+        quantity: qty,
         name: item.Name,
         type: item.Type,
         size: item.Size,
@@ -169,12 +193,22 @@ export default function EquipmentPage() {
     localStorage.setItem('cart', JSON.stringify(cart));
     setAddingId(null);
     alert(`${item.Name} added to cart!`);
+    
+    // Remove preselected item after adding
+    if (preselectedItem?.Equipment_ID === item.Equipment_ID) {
+      setPreselectedItem(null);
+    }
+  };
+
+  const addPreselectedToCart = () => {
+    if (preselectedItem) {
+      addToCart(preselectedItem, preselectedQuantity);
+    }
   };
 
   const addTrolleyToCart = (trolley: Trolley) => {
     const qty = trolleyQuantities[trolley.trolley_id] || 1;
     
-    // Check if enough quantity available
     if (trolley.quantity < qty) {
       alert(`Only ${trolley.quantity} ${trolley.name}(s) available in stock.`);
       return;
@@ -183,7 +217,6 @@ export default function EquipmentPage() {
     const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItem = cart.find((i) => i.id === trolley.trolley_id && i.isTrolley);
     
-    // Check if total requested exceeds available
     const existingQty = existingItem?.quantity || 0;
     if (existingQty + qty > trolley.quantity) {
       alert(`You already have ${existingQty} in cart. Only ${trolley.quantity - existingQty} more available.`);
@@ -242,6 +275,43 @@ export default function EquipmentPage() {
 
       <div className={styles.contentArea}>
         <div className={styles.shell}>
+          {/* Preselected Item Banner */}
+          {preselectedItem && (
+            <div className={styles.preselectedBanner}>
+              <div className={styles.preselectedContent}>
+                <div>
+                  <strong>Ready to order: {preselectedItem.Name}</strong>
+                  <p>Quantity: {preselectedQuantity}</p>
+                </div>
+                <div className={styles.preselectedActions}>
+                  <div className={styles.quantityControl}>
+                    <button 
+                      className={styles.qtyBtn}
+                      onClick={() => setPreselectedQuantity(Math.max(1, preselectedQuantity - 1))}
+                    >−</button>
+                    <span className={styles.qtyDisplay}>{preselectedQuantity}</span>
+                    <button 
+                      className={styles.qtyBtn}
+                      onClick={() => setPreselectedQuantity(preselectedQuantity + 1)}
+                    >+</button>
+                  </div>
+                  <button 
+                    className={styles.addToCartBtn}
+                    onClick={addPreselectedToCart}
+                  >
+                    Add to Cart Now
+                  </button>
+                  <button 
+                    className={styles.dismissBtn}
+                    onClick={() => setPreselectedItem(null)}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {!showTrolleys ? (
             // Equipment View
             <>
@@ -289,7 +359,11 @@ export default function EquipmentPage() {
                   const currentQty = quantities[item.Equipment_ID] || 1;
                   
                   return (
-                    <div key={item.Equipment_ID} className={styles.equipmentCard}>
+                    <div 
+                      key={item.Equipment_ID} 
+                      id={`equipment-${item.Equipment_ID}`}
+                      className={styles.equipmentCard}
+                    >
                       <h4 className={styles.itemName}>{item.Name}</h4>
                       {item.Type && <span className={styles.itemType}>{item.Type}</span>}
                       {item.Size && <p><strong>Size:</strong> {item.Size}</p>}

@@ -352,10 +352,6 @@ export default function CartPage() {
                     <span>Different Items</span>
                     <span>{cartItems.length}</span>
                   </div>
-                  <div className={styles.summaryRow}>
-                    <span>Estimated Delivery</span>
-                    <span>Free</span>
-                  </div>
                   
                   <Link href="/dashboard/rooms" className={styles.checkoutBtn}>
                     Select Room & Confirm
