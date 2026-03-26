@@ -35,11 +35,12 @@ export default async function DashboardLayout({
     { name: "My Cart", href: "/dashboard/cart", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "My Bookings", href: "/dashboard/orders", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     { name: "Rooms", href: "/dashboard/rooms", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
-    { name: "Account Settings", href: "/dashboard/account", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
     //Tier 2 features and above
     { name: "Schedule", href: "/dashboard/schedule", tiers: ["Tier 2", "Tier 3", "Tier 4"] },
+    { name: "Restock", href: "/dashboard/restock", tiers: ["Tier 2", "Tier 3", "Tier 4"] },
     // Admin Panel - ONLY for Tier 4
     { name: "Admin Panel", href: "/dashboard/admin", tiers: ["Tier 4"] },
+    { name: "Account Settings", href: "/dashboard/account", tiers: ["Tier 1", "Tier 2", "Tier 3", "Tier 4"] },
   ];
 
   // Filter navigation based on user's tier

@@ -158,18 +158,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className={styles.statsGrid}>
-          <div className={styles.statBox}>
-            <p className={styles.statLabel}>Status</p>
-            <p className={styles.statNumber}>{status}</p>
-          </div>
-          <div className={styles.statBox}>
-            <p className={styles.statLabel}>Tier</p>
-            <p className={styles.statNumber}>{tier}</p>
-          </div>
-        </div>
-
+  
         {/* Recent Orders Section */}
         <div className={styles.sectionCard}>
           <div className={styles.sectionHeader}>

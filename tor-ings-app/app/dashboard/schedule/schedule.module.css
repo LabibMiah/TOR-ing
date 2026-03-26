@@ -202,6 +202,25 @@
   color: #e5e7eb;
 }
 
+.editBtn {
+  padding: 6px 12px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 8px;
+}
+
+.editBtn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+
+
 .expireBtn:hover,
 .refreshBtn:hover,
 .exportBtn:hover {
@@ -276,6 +295,158 @@
   border-radius: 12px;
   font-size: 11px;
   color: #6b7280;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: color 0.2s;
+}
+
+.modalClose:hover {
+  color: #374151;
+}
+
+.modalBody {
+  padding: 24px;
+}
+
+.modalBody p {
+  margin: 0 0 12px;
+  color: #4b5563;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.select, .input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  background: white;
+  transition: all 0.2s;
+}
+
+.select:focus, .input:focus {
+  outline: none;
+  border-color: #672146;
+  box-shadow: 0 0 0 3px rgba(103, 33, 70, 0.1);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 16px;
+}
+
+.cancelBtn {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancelBtn:hover {
+  background: #e5e7eb;
+}
+
+.saveBtn {
+  padding: 8px 16px;
+  background: #672146;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #7b2b55;
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.warningNote {
+  margin: 12px 0;
+  padding: 10px;
+  background-color: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  color: #b45309;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.dateError {
+  margin-top: 8px;
+  padding: 10px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
 }
 
 .noEquipment {

@@ -19,10 +19,19 @@ type BookingItem = {
   equipment_id: number;
 };
 
+type Room = {
+  Room_ID: number;
+  Room: string;
+  Type: string | null;
+  Building: string | null;
+  Letter: string | null;
+};
+
 type Booking = {
   booking_id: string;
   user_id: string;
   user_name: string;
+  room_id: number;
   room_name: string;
   start_date: string;
   end_date: string;
@@ -36,12 +45,21 @@ export default function SchedulePage() {
   const supabase = createClient();
   const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [userTier, setUserTier] = useState("");
+  
+  // Edit modal state
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [editRoomId, setEditRoomId] = useState<number>(0);
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
+  const [editDateError, setEditDateError] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     async function checkAccessAndLoad() {
@@ -73,9 +91,21 @@ export default function SchedulePage() {
       }
 
       await loadSchedule();
+      await loadRooms();
     }
     checkAccessAndLoad();
   }, []);
+
+  const loadRooms = async () => {
+    const { data } = await supabase
+      .from("Rooms")
+      .select("Room_ID, Room, Type, Building, Letter")
+      .order("Room", { ascending: true });
+    
+    if (data) {
+      setRooms(data);
+    }
+  };
 
   const loadSchedule = async () => {
     setLoading(true);
@@ -122,7 +152,6 @@ export default function SchedulePage() {
         throw new Error("Please log in again");
       }
 
-      // Pass current filter and search term to API for export
       const url = `/api/schedule?export=csv&filter=${filter}&search=${encodeURIComponent(searchTerm)}`;
 
       const response = await fetch(url, {
@@ -135,13 +164,11 @@ export default function SchedulePage() {
         throw new Error("Failed to export schedule");
       }
 
-      // Create blob and download
       const blob = await response.blob();
       const url_blob = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url_blob;
 
-      // Get filename from Content-Disposition header or generate one
       const contentDisposition = response.headers.get("Content-Disposition");
       let filename = `schedule_export_${new Date().toISOString().split("T")[0]}.csv`;
       if (contentDisposition) {
@@ -200,6 +227,104 @@ export default function SchedulePage() {
     }
   };
 
+  const openEditModal = (booking: Booking) => {
+    setEditingBooking(booking);
+    setEditRoomId(booking.room_id);
+    setEditStartDate(booking.start_date);
+    setEditEndDate(booking.end_date);
+    setEditDateError("");
+  };
+
+  const closeEditModal = () => {
+    setEditingBooking(null);
+    setEditRoomId(0);
+    setEditStartDate("");
+    setEditEndDate("");
+    setEditDateError("");
+  };
+
+  const validateEditDates = (start: string, end: string): boolean => {
+    if (start && end) {
+      if (new Date(start) > new Date(end)) {
+        setEditDateError("Start date cannot be after end date");
+        return false;
+      }
+      setEditDateError("");
+      return true;
+    }
+    return true;
+  };
+
+  const handleEditStartDateChange = (value: string) => {
+    setEditStartDate(value);
+    if (editEndDate) {
+      validateEditDates(value, editEndDate);
+    }
+  };
+
+  const handleEditEndDateChange = (value: string) => {
+    setEditEndDate(value);
+    if (editStartDate) {
+      validateEditDates(editStartDate, value);
+    }
+  };
+
+  const saveBookingEdit = async () => {
+    if (!editingBooking) return;
+    
+    if (editDateError) {
+      alert("Please fix the date issue before saving");
+      return;
+    }
+    
+    if (!editStartDate || !editEndDate) {
+      alert("Please select both start and end dates");
+      return;
+    }
+
+    setSavingEdit(true);
+
+    try {
+      // If the booking was confirmed, set it back to pending after edit
+      const newStatus = editingBooking.status === "confirmed" ? "pending" : editingBooking.status;
+      
+      const { error } = await supabase
+        .from("bookings")
+        .update({
+          room_id: editRoomId,
+          room_name: rooms.find(r => r.Room_ID === editRoomId)?.Room || "",
+          start_date: editStartDate,
+          end_date: editEndDate,
+          status: newStatus,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("booking_id", editingBooking.booking_id);
+
+      if (error) throw error;
+
+      const message = editingBooking.status === "confirmed" 
+        ? "Booking updated and set back to pending for re-confirmation"
+        : "Booking updated successfully";
+      
+      alert(message);
+      await loadSchedule();
+      closeEditModal();
+    } catch (error) {
+      console.error("Error updating booking:", error);
+      alert("Failed to update booking");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const formatRoomDisplay = (room: Room) => {
+    const letter = room.Letter || '';
+    const roomNumber = room.Room || '';
+    const building = room.Building || '';
+    const roomCode = letter && roomNumber ? `${letter}${roomNumber}` : roomNumber || 'Unknown';
+    return `${roomCode} - ${building}`;
+  };
+
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
       if (filter !== "all" && booking.status !== filter) return false;
@@ -248,6 +373,12 @@ export default function SchedulePage() {
     new Date(date).toLocaleDateString("en-GB");
 
   const isAdmin = userTier === "Tier 4";
+  const canEdit = userTier === "Tier 3" || userTier === "Tier 4";
+
+  // Determine if edit button should be shown
+  const shouldShowEdit = (status: BookingStatus): boolean => {
+    return canEdit && (status === "pending" || status === "confirmed");
+  };
 
   if (loading) return <div className={styles.loading}>Loading schedule...</div>;
 
@@ -256,9 +387,7 @@ export default function SchedulePage() {
       <div className={styles.contentHeader}>
         <div className={styles.headerTop}>
           <h1 className={styles.contentHeaderTitle}>Equipment Schedule</h1>
-          <div className={styles.headerButtons}>
-
-          </div>
+          <div className={styles.headerButtons}></div>
         </div>
         <p className={styles.contentHeaderSubtitle}>
           Manage and track all equipment booking requests
@@ -351,8 +480,8 @@ export default function SchedulePage() {
                   <th>Equipment</th>
                   <th>Status</th>
                   <th>Actions</th>
-                </tr>
-              </thead>
+                  </tr>
+                </thead>
               <tbody>
                 {filteredBookings.map((booking) => (
                   <tr key={booking.booking_id}>
@@ -420,15 +549,17 @@ export default function SchedulePage() {
                         </>
                       )}
                       {booking.status === "confirmed" && (
-                        <button
-                          onClick={() =>
-                            updateBookingStatus(booking.booking_id, "declined")
-                          }
-                          disabled={updatingId === booking.booking_id}
-                          className={styles.cancelBtn}
-                        >
-                          Cancel
-                        </button>
+                        <>
+                          <button
+                            onClick={() =>
+                              updateBookingStatus(booking.booking_id, "declined")
+                            }
+                            disabled={updatingId === booking.booking_id}
+                            className={styles.cancelBtn}
+                          >
+                            Cancel
+                          </button>
+                        </>
                       )}
                       {booking.status === "declined" && (
                         <button
@@ -439,6 +570,14 @@ export default function SchedulePage() {
                           className={styles.reopenBtn}
                         >
                           Reopen
+                        </button>
+                      )}
+                      {shouldShowEdit(booking.status) && (
+                        <button
+                          onClick={() => openEditModal(booking)}
+                          className={styles.editBtn}
+                        >
+                          Edit
                         </button>
                       )}
                     </td>
@@ -455,6 +594,91 @@ export default function SchedulePage() {
           )}
         </div>
       </div>
+
+      {/* Edit Booking Modal */}
+      {editingBooking && (
+        <div className={styles.modalOverlay} onClick={closeEditModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Edit Booking</h2>
+              <button className={styles.modalClose} onClick={closeEditModal}>
+                ×
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <p>
+                <strong>User:</strong> {editingBooking.user_name}
+              </p>
+              <p>
+                <strong>Current Status:</strong> {editingBooking.status}
+              </p>
+              {editingBooking.status === "confirmed" && (
+                <p className={styles.warningNote}>
+                  ! Editing a confirmed booking will set it back to pending for re-approval
+                </p>
+              )}
+
+              <div className={styles.formGroup}>
+                <label>Room *</label>
+                <select
+                  value={editRoomId}
+                  onChange={(e) => setEditRoomId(parseInt(e.target.value))}
+                  className={styles.select}
+                >
+                  {rooms.map((room) => (
+                    <option key={room.Room_ID} value={room.Room_ID}>
+                      {formatRoomDisplay(room)} {room.Type ? `(${room.Type})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Start Date *</label>
+                <input
+                  type="date"
+                  value={editStartDate}
+                  onChange={(e) => handleEditStartDateChange(e.target.value)}
+                  className={styles.input}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>End Date *</label>
+                <input
+                  type="date"
+                  value={editEndDate}
+                  onChange={(e) => handleEditEndDateChange(e.target.value)}
+                  className={styles.input}
+                />
+              </div>
+
+              {editDateError && (
+                <div className={styles.dateError}>
+                  ! {editDateError}
+                </div>
+              )}
+
+              <div className={styles.modalFooter}>
+                <button
+                  className={styles.cancelBtn}
+                  onClick={closeEditModal}
+                  disabled={savingEdit}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={styles.saveBtn}
+                  onClick={saveBookingEdit}
+                  disabled={savingEdit || !!editDateError}
+                >
+                  {savingEdit ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className={styles.footer}>
         <p>© 2026 TORS Health Equipment - Sheffield Hallam University</p>
