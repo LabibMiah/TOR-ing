@@ -6,31 +6,41 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./newstock.module.css";
 import router from "next/dist/shared/lib/router/router";
-import { setEngine } from "crypto";
 
-
+type Equipment = {
+  Equipment_ID: number;
+  Name: string;
+  Type: string | null;
+  Size: string | null;
+  Quantity: number | null;
+  Equipment_Catagory: string | null;
+};
 
 export default function TestUploadPage() {
  const supabase = createClient();
  const router = useRouter();
 
+ const [Equipment, setEquipment] = useState<Equipment[]>([]);
  const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-    async function loadEquipment() {
-        const{data:{session}} = await supabase.auth.getSession();
+    async function loadEquipment(): Promise<void> {
+        const{ data :{session}} = await supabase.auth.getSession();
         if (!session) {
             router.push("/login");
         }
 
         const{data} = await supabase
         .from('Equipment')
-        .select('*');
-    }
-    
-    loadEquipment();
-  }, [supabase, router]);
+        .select('*')
+        .order('Equipment_ID', { ascending: false });
 
+    setEquipment((data as Equipment[] || []));
+    loadEquipment();
+    setLoading(false);
+    } 
+
+  }, [supabase, router]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -40,22 +50,6 @@ export default function TestUploadPage() {
     category: ""
 
   });
-    const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    console.log("Submitted Data:", formData);
-
-    alert("Form submitted");
-
-
-    setFormData({
-      name: "",
-      type: "",
-      size: "",
-      quantity: "",
-      category: ""
-
-    });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -73,29 +67,39 @@ export default function TestUploadPage() {
     }
     setLoading(true);
 
-    const{data: {session}} = await supabase.auth.getSession();
-    if (!session) {
-        router.push("/login");
+  const{data: {session}} = await supabase.auth.getSession();
+  if (!session) {
+      router.push("/login");
+      return;
+  }
 
-        try {
-            const { data: Equipment, error } = await supabase
-            .from('Equipment')
-            .insert({
-                Name : name,
-                Type: type,
-                Size: size,
-                Quantity: quantity,
-                Category: category
-            });
-        } catch (error) {
-            console.error("Error inserting equipment:", error);
-            alert("Error submitting form.");
-        }
+  try {
+      const { data: Equipment, error: EquipmentError } = await supabase
+          .from('Equipment')
+          .insert({
+              Name: name,
+              Type: type,
+              Size: size,
+              Quantity: quantity,
+              Equipment_Catagory: category
+          })
+          .select()
+          .single();
+      
+      if (EquipmentError) {
+          console.error("Error inserting equipment:", EquipmentError);
+          alert("error inserting form.");
+          return;
+      }
+  } catch (error) {
+      console.error("Error:", error);
+      alert("Error submitting form.");
   }
 
     console.log("Submitted Data:", formData);
 
     alert("Form submitted");
+
 
     setFormData({
       name: "",
@@ -103,15 +107,15 @@ export default function TestUploadPage() {
       size: "",
       quantity: "",
       category: ""
-
     });
   };
-return(
-<div style={{ padding: "20px", maxWidth: "400px" }}>
-    <h1>Add New Stock</h1>
-      <form onSubmit={handleSubmit}>
+
+  return (
+    <div style={{ padding: "20px", maxWidth: "400px" }}>
         
-      <h1>Testing Equipment Upload</h1>
+      <h1>Add New Equipment</h1>
+
+      <form onSubmit={handleNewStock}>
         <div>
           <label>Name</label><br />
           <input
@@ -150,7 +154,6 @@ return(
             name="quantity"
             value={formData.quantity}
             onChange={handleChange}
-            required
           />
         </div>
 
@@ -166,14 +169,10 @@ return(
 
         <br />
 
-        <button type="submit"
-        onClick={handleNewStock}
-        >
+        <button type="submit">
             Submit
         </button>
-
-        </form>
+      </form>
     </div>
-)
-}
+  );
 }
