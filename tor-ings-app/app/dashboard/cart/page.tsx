@@ -54,7 +54,7 @@ export default function CartPage() {
       
       if (userError || !user) {
         console.log("2. No user found, redirecting to login");
-        router.push("/login");
+        router.push("/Login");
         return;
       }
 

@@ -67,7 +67,7 @@ export default function SchedulePage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        router.push("/login");
+        router.push("/Login");
         return;
       }
 

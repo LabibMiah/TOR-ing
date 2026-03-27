@@ -75,7 +75,7 @@ export default function Signup() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/login`,
+          emailRedirectTo: `${window.location.origin}/Login`,
           data: {
             forename: forename,
             account_type: selectedAccountType,
@@ -128,7 +128,7 @@ export default function Signup() {
       alert("✓ Account created! Please check your email to confirm your account.");
       
       setTimeout(() => {
-        router.push("/login");
+        router.push("/Login");
       }, 2000);
 
     } catch (err: any) {
@@ -258,7 +258,7 @@ export default function Signup() {
             </div>
 
             <div className={styles.links}>
-              <Link href="/login">Already have an account? Log In</Link>
+              <Link href="/Login">Already have an account? Log In</Link>
               <button 
                 onClick={() => window.history.back()}
                 className={styles.backBtn}

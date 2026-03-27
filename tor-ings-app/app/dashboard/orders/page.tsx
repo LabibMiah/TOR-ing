@@ -33,7 +33,7 @@ export default async function OrdersPage() {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
-    redirect("/login");
+    redirect("/Login");
   }
 
   // Fetch user's real bookings from the database
