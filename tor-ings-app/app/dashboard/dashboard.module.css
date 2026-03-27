@@ -107,6 +107,13 @@
   margin-top: auto;
 }
 
+.footer {
+  background: #111827;
+  color: #fff;
+  text-align: center;
+  padding: 18px 10px;
+}
+
 .logoutButton {
   width: 100%;
   padding: 10px;
