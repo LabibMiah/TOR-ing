@@ -67,6 +67,20 @@ export default function EquipmentPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Helper function to get cart from localStorage
+  const getCart = (): CartItem[] => {
+    if (typeof window === 'undefined') return [];
+    const cart = localStorage.getItem('cart');
+    return cart ? JSON.parse(cart) : [];
+  };
+
+  // Helper function to save cart to localStorage
+  const saveCart = (cart: CartItem[]) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+  };
+
   useEffect(() => {
     async function loadData() {
       const { data: { session } } = await supabase.auth.getSession();
@@ -91,7 +105,7 @@ export default function EquipmentPage() {
       
       if (trolleyData) {
         const trolleysWithItems = await Promise.all(
-          trolleyData.map(async (trolley) => {
+          trolleyData.map(async (trolley: Trolley) => {
             const { data: items } = await supabase
               .from('Trolley_Items')
               .select('*')
@@ -129,7 +143,7 @@ export default function EquipmentPage() {
   }, [preselectedEquipmentId]);
 
   const getCategories = useMemo(() => {
-    const unique = [...new Set(equipment.map(item => item.Equipment_Catagory).filter(Boolean))];
+    const unique = [...new Set(equipment.map(item => item.Equipment_Catagory).filter((cat): cat is string => cat !== null))];
     return ["all", ...unique];
   }, [equipment]);
 
@@ -155,15 +169,12 @@ export default function EquipmentPage() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedEquipment = filteredEquipment.slice(startIndex, startIndex + itemsPerPage);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, searchTerm]);
 
   const addToCart = (item: Equipment, quantity?: number) => {
     const qty = quantity || quantities[item.Equipment_ID] || 1;
     setAddingId(item.Equipment_ID);
     
-    const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cart = getCart();
     const existingItem = cart.find((i) => i.id === item.Equipment_ID && !i.isTrolley);
     
     const availableQty = item.Quantity || 0;
@@ -190,7 +201,7 @@ export default function EquipmentPage() {
       });
     }
     
-    localStorage.setItem('cart', JSON.stringify(cart));
+    saveCart(cart);
     setAddingId(null);
     alert(`${item.Name} added to cart!`);
     
@@ -214,7 +225,7 @@ export default function EquipmentPage() {
       return;
     }
     
-    const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cart = getCart();
     const existingItem = cart.find((i) => i.id === trolley.trolley_id && i.isTrolley);
     
     const existingQty = existingItem?.quantity || 0;
@@ -238,7 +249,7 @@ export default function EquipmentPage() {
       });
     }
     
-    localStorage.setItem('cart', JSON.stringify(cart));
+    saveCart(cart);
     alert(`${trolley.name} added to cart!`);
   };
 
@@ -352,7 +363,7 @@ export default function EquipmentPage() {
               <div className={styles.equipmentGrid}>
                 {paginatedEquipment.map((item) => {
                   const availableQty = item.Quantity || 0;
-                  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                  const cart = getCart();
                   const existingItem = cart.find((i) => i.id === item.Equipment_ID && !i.isTrolley);
                   const existingQty = existingItem?.quantity || 0;
                   const remainingStock = availableQty - existingQty;
@@ -423,7 +434,7 @@ export default function EquipmentPage() {
               <div className={styles.equipmentGrid}>
                 {trolleys.map((trolley) => {
                   const currentQty = trolleyQuantities[trolley.trolley_id] || 1;
-                  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                  const cart = getCart();
                   const existingItem = cart.find((i) => i.id === trolley.trolley_id && i.isTrolley);
                   const existingQty = existingItem?.quantity || 0;
                   const remainingStock = trolley.quantity - existingQty;

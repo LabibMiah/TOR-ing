@@ -255,6 +255,10 @@ export default function RoomsPage() {
     setAvailabilityStatus(null);
   };
 
+  const handleEndDateChange = (date: Date | null) => {
+    setEndDate(date);
+  };
+
   const formatRoomDisplay = (room: Room) => {
     const letter = room.Letter || '';
     const roomNumber = room.Room || '';
@@ -464,7 +468,7 @@ export default function RoomsPage() {
               <label>End Date *</label>
               <DatePicker
                 selected={endDate}
-                onChange={(date: Date) => setEndDate(date)}
+                onChange={handleEndDateChange}
                 selectsEnd
                 startDate={startDate}
                 endDate={endDate}

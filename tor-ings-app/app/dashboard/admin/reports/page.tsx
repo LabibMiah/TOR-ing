@@ -66,6 +66,24 @@ type EquipmentStats = {
   times_ordered: number;
 };
 
+type PieDataItem = {
+  name: string;
+  value: number;
+  user_id?: string;
+};
+
+type StatusDataItem = {
+  name: string;
+  value: number;
+  color: string;
+};
+
+type MonthlyTrend = {
+  month: string;
+  count: number;
+  confirmed: number;
+};
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#ff7300'];
 
 export default function ReportsPage() {
@@ -259,7 +277,7 @@ export default function ReportsPage() {
     const others = userStats.slice(8);
     const othersTotal = others.reduce((sum, u) => sum + u.total_bookings, 0);
     
-    const data = topUsers.map(u => ({
+    const data: PieDataItem[] = topUsers.map(u => ({
       name: u.user_name,
       value: u.total_bookings,
       user_id: u.user_id,
@@ -306,7 +324,7 @@ export default function ReportsPage() {
   }, [filteredBookings]);
 
   const monthlyTrends = useMemo(() => {
-    const trends = new Map<string, { month: string; count: number; confirmed: number }>();
+    const trends = new Map<string, MonthlyTrend>();
     
     filteredBookings.forEach(booking => {
       const date = new Date(booking.created_at);
@@ -329,6 +347,7 @@ export default function ReportsPage() {
     });
   }, [filteredBookings]);
 
+  // Custom tooltips – using any for props to avoid type conflicts with Recharts versions
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -347,7 +366,7 @@ export default function ReportsPage() {
 
   const PieTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const data = payload[0].payload as PieDataItem;
       return (
         <div className={styles.customTooltip}>
           <p className={styles.tooltipLabel}>{data.name}</p>
@@ -449,7 +468,7 @@ export default function ReportsPage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -477,7 +496,7 @@ export default function ReportsPage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -544,8 +563,8 @@ export default function ReportsPage() {
                     <th>Total Bookings</th>
                     <th>Confirmed Bookings</th>
                     <th>Total Days Used</th>
-                    </tr>
-                  </thead>
+                  </tr>
+                </thead>
                 <tbody>
                   {roomStats.slice(0, 10).map((room) => (
                     <tr key={`room-${room.room_id}`}>
@@ -573,8 +592,8 @@ export default function ReportsPage() {
                     <th>Pending</th>
                     <th>Completed</th>
                     <th>Items Ordered</th>
-                    </tr>
-                  </thead>
+                  </tr>
+                </thead>
                 <tbody>
                   {userStats.slice(0, 10).map((user) => (
                     <tr key={`user-${user.user_id}`}>

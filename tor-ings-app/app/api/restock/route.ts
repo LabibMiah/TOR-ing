@@ -13,6 +13,26 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   },
 });
 
+// Types for the request body
+type NewItemDetails = {
+  category?: string | null;
+  type?: string | null;
+  size?: string | null;
+  name?: string;
+  quantity?: number;
+  reason?: string;
+  requested_by?: string;
+};
+
+type RestockRequestBody = {
+  item_type: string;
+  item_id?: string;
+  item_name?: string;
+  requested_quantity: number;
+  reason?: string;
+  new_item_details?: NewItemDetails;
+};
+
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get("Authorization");
@@ -86,7 +106,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden - Insufficient permissions" }, { status: 403 });
     }
 
-    const body = await request.json();
+    const body = await request.json() as RestockRequestBody;
     const { item_type, item_id, item_name, requested_quantity, reason, new_item_details } = body;
 
     if (!item_type || !requested_quantity) {
@@ -225,9 +245,9 @@ export async function PUT(request: NextRequest) {
     // If confirming a new item request, create the equipment
     if (status === "confirmed" && existingRequest.item_type === "new_item") {
       // Parse the new item details from notes
-      let newItemDetails = {};
+      let newItemDetails: NewItemDetails = {};
       try {
-        newItemDetails = JSON.parse(existingRequest.notes || "{}");
+        newItemDetails = JSON.parse(existingRequest.notes || "{}") as NewItemDetails;
       } catch (e) {
         console.error("Error parsing new item details:", e);
       }
