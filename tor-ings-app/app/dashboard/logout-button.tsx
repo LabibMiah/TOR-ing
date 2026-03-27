@@ -17,7 +17,7 @@ export default function LogoutButton({ className }: { className?: string }) {
         body: JSON.stringify({ session: null }),
       });
 
-      router.push("/login");
+      router.push("/Login");
       router.refresh();
     } catch (error) {
       console.error("Logout error:", error);

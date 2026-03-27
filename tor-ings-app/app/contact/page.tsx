@@ -14,7 +14,7 @@ export default function ContactPage() {
           </div>
 
           <nav className={styles.topActions}>
-            <Link href="/login" className={styles.actionLink}>Login</Link>
+            <Link href="/Login" className={styles.actionLink}>Login</Link>
           </nav>
         </div>
 
