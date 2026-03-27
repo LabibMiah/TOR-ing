@@ -511,27 +511,68 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          {/* Most Ordered Equipment Bar Chart */}
-          <div className={styles.chartCard}>
-            <h3 className={styles.chartTitle}>Top 10 Most Ordered Equipment</h3>
-            <div className={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart
-                  data={equipmentStats}
-                  layout="vertical"
-                  margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="equipment_name" width={120} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Bar dataKey="total_quantity" fill="#8884d8" name="Total Quantity" />
-                  <Bar dataKey="times_ordered" fill="#82ca9d" name="Times Ordered" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+         {/* Most Ordered Equipment Bar Chart - FIXED SPACING */}
+<div className={styles.chartCard}>
+  <h3 className={styles.chartTitle}>Top 10 Most Ordered Equipment</h3>
+  <div className={styles.chartContainer} style={{ height: '500px', minHeight: '500px' }}>
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart
+        data={equipmentStats}
+        layout="vertical"
+        margin={{ 
+          top: 20, 
+          right: 30, 
+          left: 140,  // Increased left margin for longer equipment names
+          bottom: 20 
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+        <XAxis 
+          type="number" 
+          tick={{ fontSize: 12 }}
+          label={{ value: 'Quantity / Times Ordered', position: 'bottom', offset: 10 }}
+        />
+        <YAxis 
+          type="category" 
+          dataKey="equipment_name" 
+          width={130}
+          tick={{ 
+            fontSize: 12, 
+            fontWeight: 500,
+            fill: '#374151'
+          }}
+          interval={0}
+        />
+        <Tooltip 
+          content={<CustomTooltip />}
+          cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+        />
+        <Legend 
+          verticalAlign="top" 
+          height={36}
+          wrapperStyle={{ paddingBottom: '10px' }}
+        />
+        <Bar 
+          dataKey="total_quantity" 
+          fill="#8884d8" 
+          name="Total Quantity"
+          radius={[0, 4, 4, 0]}
+          barSize={20}
+        />
+        <Bar 
+          dataKey="times_ordered" 
+          fill="#82ca9d" 
+          name="Times Ordered"
+          radius={[0, 4, 4, 0]}
+          barSize={20}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+  <p className={styles.chartNote}>
+    Equipment ranked by total quantity ordered. Hover over bars to see exact numbers.
+  </p>
+</div>
 
           {/* Most Used Rooms */}
           <div className={styles.tableCard}>
