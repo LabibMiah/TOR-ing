@@ -464,7 +464,7 @@ export default function RoomsPage() {
               <label>End Date *</label>
               <DatePicker
                 selected={endDate}
-                onChange={(date: Date) => setEndDate(date)}
+                onChange={(date: Date | null) => setEndDate(date)}
                 selectsEnd
                 startDate={startDate}
                 endDate={endDate}

@@ -129,7 +129,7 @@ export default function EquipmentPage() {
   }, [preselectedEquipmentId]);
 
   const getCategories = useMemo(() => {
-    const unique = [...new Set(equipment.map(item => item.Equipment_Catagory).filter(Boolean))];
+    const unique = [...new Set(equipment.map(item => item.Equipment_Catagory).filter((cat): cat is string => cat !== null && cat !== undefined))];
     return ["all", ...unique];
   }, [equipment]);
 
@@ -164,7 +164,7 @@ export default function EquipmentPage() {
     setAddingId(item.Equipment_ID);
     
     const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingItem = cart.find((i) => i.id === item.Equipment_ID && !i.isTrolley);
+    const existingItem = cart.find((i: CartItem) => i.id === item.Equipment_ID && !i.isTrolley);
     
     const availableQty = item.Quantity || 0;
     const existingQty = existingItem?.quantity || 0;
@@ -215,7 +215,7 @@ export default function EquipmentPage() {
     }
     
     const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingItem = cart.find((i) => i.id === trolley.trolley_id && i.isTrolley);
+    const existingItem = cart.find((i: CartItem) => i.id === trolley.trolley_id && i.isTrolley);
     
     const existingQty = existingItem?.quantity || 0;
     if (existingQty + qty > trolley.quantity) {
@@ -322,7 +322,10 @@ export default function EquipmentPage() {
                     type="text"
                     placeholder="Search equipment by name or type..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     className={styles.searchInput}
                   />
                 </div>
@@ -330,7 +333,10 @@ export default function EquipmentPage() {
                   <label>Filter by Category:</label>
                   <select
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     className={styles.categorySelect}
                   >
                     {getCategories.map(cat => (
@@ -353,7 +359,7 @@ export default function EquipmentPage() {
                 {paginatedEquipment.map((item) => {
                   const availableQty = item.Quantity || 0;
                   const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-                  const existingItem = cart.find((i) => i.id === item.Equipment_ID && !i.isTrolley);
+                  const existingItem = cart.find((i: CartItem) => i.id === item.Equipment_ID && !i.isTrolley);
                   const existingQty = existingItem?.quantity || 0;
                   const remainingStock = availableQty - existingQty;
                   const currentQty = quantities[item.Equipment_ID] || 1;
@@ -424,7 +430,7 @@ export default function EquipmentPage() {
                 {trolleys.map((trolley) => {
                   const currentQty = trolleyQuantities[trolley.trolley_id] || 1;
                   const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-                  const existingItem = cart.find((i) => i.id === trolley.trolley_id && i.isTrolley);
+                  const existingItem = cart.find((i: CartItem) => i.id === trolley.trolley_id && i.isTrolley);
                   const existingQty = existingItem?.quantity || 0;
                   const remainingStock = trolley.quantity - existingQty;
                   

@@ -130,7 +130,7 @@ export default async function DashboardPage() {
             type: details.Type,
             size: details.Size,
             category: details.Equipment_Catagory,
-            last_ordered: recentBookings[0]?.created_at || new Date().toISOString(),
+            last_ordered: recentBookings && recentBookings.length > 0 ? recentBookings[0].created_at : new Date().toISOString(),
             quantity: item.quantity
           });
         }

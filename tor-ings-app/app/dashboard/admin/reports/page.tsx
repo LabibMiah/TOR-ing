@@ -329,12 +329,36 @@ export default function ReportsPage() {
     });
   }, [filteredBookings]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipPayload {
+    name: string;
+    value: number;
+  }
+
+  interface TooltipProps {
+    active?: boolean;
+    payload?: TooltipPayload[];
+    label?: string;
+  }
+
+  interface PieTooltipPayload {
+    payload: {
+      name: string;
+      value: number;
+      user_id?: string;
+    };
+  }
+
+  interface PieTooltipProps {
+    active?: boolean;
+    payload?: PieTooltipPayload[];
+  }
+
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className={styles.customTooltip}>
           <p className={styles.tooltipLabel}>{label}</p>
-          {payload.map((p: any, idx: number) => (
+          {payload.map((p: TooltipPayload, idx: number) => (
             <p key={idx} className={styles.tooltipValue}>
               {p.name}: {p.value}
             </p>
@@ -345,7 +369,7 @@ export default function ReportsPage() {
     return null;
   };
 
-  const PieTooltip = ({ active, payload }: any) => {
+  const PieTooltip = ({ active, payload }: PieTooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
@@ -361,7 +385,7 @@ export default function ReportsPage() {
     return null;
   };
 
-  const handlePieClick = (data: any) => {
+  const handlePieClick = (data: { user_id?: string; name?: string; value: number }, _index: number, _event: React.MouseEvent) => {
     if (data.user_id && data.user_id !== 'others') {
       const user = userStats.find(u => u.user_id === data.user_id);
       if (user) {
@@ -449,7 +473,7 @@ export default function ReportsPage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -477,7 +501,7 @@ export default function ReportsPage() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"

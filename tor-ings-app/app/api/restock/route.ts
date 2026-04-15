@@ -225,7 +225,7 @@ export async function PUT(request: NextRequest) {
     // If confirming a new item request, create the equipment
     if (status === "confirmed" && existingRequest.item_type === "new_item") {
       // Parse the new item details from notes
-      let newItemDetails = {};
+      let newItemDetails: { category?: string | null; type?: string | null; size?: string | null } = {};
       try {
         newItemDetails = JSON.parse(existingRequest.notes || "{}");
       } catch (e) {
